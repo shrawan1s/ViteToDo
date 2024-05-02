@@ -29,7 +29,7 @@ const SigninForm: React.FC = () => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-amber-50 to-violet-100 flex items-center justify-center h-screen">
+    <div className="p-3 bg-gradient-to-r from-amber-50 to-violet-100 flex items-center justify-center h-screen">
       <div className="max-w-sm w-full">
         <h2 className="text-xl font-bold mb-4 text-center">Sign In</h2>
         {/* Formik handles form state and submission */}
