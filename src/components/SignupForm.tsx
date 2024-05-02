@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage, useField } from 'formik';
 import * as Yup from 'yup';
 
@@ -97,6 +98,10 @@ const SignupForm: React.FC = () => {
                         <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full">
                             Sign Up
                         </button>
+                        <div className="mt-4 text-center">
+                            <span className="text-gray-600">Already have an account?</span> {' '}
+                            <Link to="/" className="text-blue-500">Sign in</Link>
+                        </div>
                     </Form>
                 </Formik>
             </div>

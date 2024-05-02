@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
@@ -45,9 +46,16 @@ const SigninForm: React.FC = () => {
               <Field type="password" id="password" name="password" className="border p-2 w-full rounded-md" placeholder="Enter your password" />
               <ErrorMessage name="password" component="div" className="text-red-500 h-6" />
             </div>
+            <div className="mb-4">
+              <Link to="/forgot-password" className="text-blue-500">Forgot your password?</Link>
+            </div>
             <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full">
               Sign In
             </button>
+            <div className="mt-4 text-center">
+              <span className="text-gray-600">Don't have an account?</span> {' '}
+              <Link to="/signup" className="text-blue-500">Sign up</Link>
+            </div>
           </Form>
         </Formik>
       </div>
