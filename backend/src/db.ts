@@ -1,18 +1,11 @@
-import { MongoClient, Db } from 'mongodb';
+import mongoose from 'mongoose';
 
-const url: string = 'mongodb://localhost:27017'; // MongoDB connection URL
-const dbName: string = 'MyDB'; // Change this to your database name
+const url: string = 'mongodb://localhost:27017/MyDB'; // MongoDB connection URL
 
-let db: Db; // Database connection object
-
-// Function to connect to MongoDB
+// Function to connect to MongoDB using Mongoose
 export async function connectDB(): Promise<void> {
     try {
-        // Connect to MongoDB with options
-        const client: MongoClient = await MongoClient.connect(url);
-        
-        // Access the database
-        db = client.db(dbName);
+        await mongoose.connect(url);
 
         console.log('Connected to MongoDB');
     } catch (error) {
@@ -20,12 +13,3 @@ export async function connectDB(): Promise<void> {
         throw error;
     }
 }
-
-// Function to get the database connection
-export function getDB(): Db {
-    if (!db) {
-        throw new Error('Database connection not initialized. Call connectDB first.');
-    }
-    return db;
-}
-
