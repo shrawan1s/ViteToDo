@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 // Define the type for the user document
-type UserDocument = Document & {
+export type UserDocument = Document & {
     firstName: string;
     lastName: string;
     email: string;
