@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { signinUser } from '../api/userAuth';
 
 // Define TypeScript types for form values
 type SigninFormValues = {
@@ -22,10 +23,21 @@ const SigninForm: React.FC = () => {
     password: '',
   };
 
+  const navigate = useNavigate();
+
   // Form submission handler
-  const handleSubmit = (values: SigninFormValues) => {
-    // Handle form submission logic here
-    console.log('Form submitted:', values);
+  const handleSubmit = async (values: SigninFormValues) => {
+    try {
+      const response = await signinUser(values);
+      if (response && response.authToken) {
+        localStorage.setItem("data", JSON.stringify(response.authToken));
+        navigate('/Home');
+      } else {
+        console.error("Unexpected response format");
+      }
+    } catch (error: any) {
+      console.error(error.message);
+    }
   };
 
   return (
@@ -38,13 +50,17 @@ const SigninForm: React.FC = () => {
           <Form>
             <div className="mb-4">
               <label htmlFor="email" className="block mb-1">Email</label>
-              <Field type="email" id="email" name="email" className="border p-2 w-full rounded-md" placeholder="Enter your email" />
-              <ErrorMessage name="email" component="div" className="text-red-500 h-6" />
+              <Field type="email" id="email" name="email" className="border p-2 w-full rounded-md outline-none" placeholder="Enter your email" />
+              <div className="h-1">
+                <ErrorMessage name="email" component="div" className="text-red-500" />
+              </div>
             </div>
             <div className="mb-4">
               <label htmlFor="password" className="block mb-1">Password</label>
-              <Field type="password" id="password" name="password" className="border p-2 w-full rounded-md" placeholder="Enter your password" />
-              <ErrorMessage name="password" component="div" className="text-red-500 h-6" />
+              <Field type="password" id="password" name="password" className="border p-2 w-full rounded-md outline-none" placeholder="Enter your password" />
+              <div className="h-1">
+                <ErrorMessage name="password" component="div" className="text-red-500" />
+              </div>
             </div>
             <div className="mb-4">
               <Link to="/forgot-password" className="text-blue-500">Forgot your password?</Link>

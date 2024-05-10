@@ -10,8 +10,8 @@ const App = () => {
       <Navbar />
       <Routes>
         <Route path='/' element={<SigninForm />} />
-        <Route path='/signup' element={<SignupForm />} />
-        <Route path='/home' element={<Home />} />
+        <Route path='/Signup' element={<SignupForm />} />
+        <Route path='/Home' element={<Home />} />
       </Routes>
     </>
   )

@@ -18,7 +18,7 @@ router.post('/createuser', validateCreateUser, async (req: Request, res: Respons
         // Check whether the user with the email exists already.
         let user: UserDocument | null = await User.findOne({ email });
         if (user) {
-            return res.status(400).json({ success, error: "Email already exists" });
+            return res.status(409).json({ success, error: "Email already exists" });
         } else {
             const salt = await bcrypt.genSalt(10);
             const secPass = await bcrypt.hash(password, salt);
@@ -54,12 +54,12 @@ router.post('/login', async (req: Request, res: Response) => {
         // Check whether the user with the email exists already.
         let user: UserDocument | null = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ success, error: "Please enter correct credentials" });
+            return res.status(401).json({ success, error: "Please enter correct credentials" });
         }
 
         const passwordCompare = await bcrypt.compare(password, user.password);
         if (!passwordCompare) {
-            return res.status(400).json({ success, error: "Please enter correct credentials" });
+            return res.status(401).json({ success, error: "Please enter correct credentials" });
         } else {
             const data = {
                 user: {

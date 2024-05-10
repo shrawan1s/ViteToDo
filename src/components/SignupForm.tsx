@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage, useField } from 'formik';
 import * as Yup from 'yup';
+import { signupUser } from '../api/userAuth';
 
 // Define TypeScript types for form values
 type SignupFormValues = {
@@ -44,11 +45,18 @@ const PasswordField: React.FC<{}> = () => {
             <input
                 {...field}
                 type="password"
-                className="border p-2 w-full rounded-md"
+                className="border p-2 w-full rounded-md outline-none"
                 placeholder="Enter your password"
                 onChange={handleInputChange} // Use handleInputChange for onChange event
             />
-            {meta.error && meta.touched && <div className="text-red-500">{meta.error}</div>}
+            {meta.error && meta.touched ? (
+                <div className="h-1">
+                    <div className="text-red-500">{meta.error}</div>
+                </div>
+            ) : (
+                <div className="h-1">
+                </div>
+            )}
         </>
     );
 };
@@ -62,14 +70,20 @@ const SignupForm: React.FC = () => {
         password: '',
     };
 
+    // Defining the useNavigate hook for the navigation.
+    const navigate = useNavigate();
+
     // Form submission handler
-    const handleSubmit = (values: SignupFormValues) => {
-        // Handle form submission logic here
-        console.log('Form submitted:', values);
+    const handleSubmit = async (values: SignupFormValues) => {
+        const response = await signupUser(values);
+        if (response.success) {
+            localStorage.setItem("data", JSON.stringify(response.authToken));
+            navigate('/Home');
+        }
     };
 
     return (
-        <div className="bg-gradient-to-r from-amber-50 to-violet-100 flex items-center justify-center h-screen">
+        <div className="mt-5 bg-gradient-to-r from-amber-50 to-violet-100 flex items-center justify-center h-screen">
             <div className="max-w-sm w-full">
                 <h2 className="text-xl font-bold mb-4 text-center">Sign Up</h2>
                 {/* Formik handles form state and submission */}
@@ -78,24 +92,30 @@ const SignupForm: React.FC = () => {
                     <Form>
                         <div className="mb-4">
                             <label htmlFor="firstName" className="block mb-1">First Name</label>
-                            <Field type="text" id="firstName" name="firstName" className="border p-2 w-full rounded-md" placeholder="Enter your first name" />
-                            <ErrorMessage name="firstName" component="div" className="text-red-500" />
+                            <Field type="text" id="firstName" name="firstName" className="border p-2 w-full rounded-md outline-none" placeholder="Enter your first name" />
+                            <div className="h-1">
+                                <ErrorMessage name="firstName" component="div" className="text-red-500" />
+                            </div>
                         </div>
                         <div className="mb-4">
                             <label htmlFor="lastName" className="block mb-1">Last Name</label>
-                            <Field type="text" id="lastName" name="lastName" className="border p-2 w-full rounded-md" placeholder="Enter your last name" />
-                            <ErrorMessage name="lastName" component="div" className="text-red-500" />
+                            <Field type="text" id="lastName" name="lastName" className="border p-2 w-full rounded-md outline-none" placeholder="Enter your last name" />
+                            <div className="h-1">
+                                <ErrorMessage name="lastName" component="div" className="text-red-500" />
+                            </div>
                         </div>
                         <div className="mb-4">
                             <label htmlFor="email" className="block mb-1">Email</label>
-                            <Field type="email" id="email" name="email" className="border p-2 w-full rounded-md" placeholder="Enter your email" />
-                            <ErrorMessage name="email" component="div" className="text-red-500" />
+                            <Field type="email" id="email" name="email" className="border p-2 w-full rounded-md outline-none" placeholder="Enter your email" />
+                            <div className="h-1">
+                                <ErrorMessage name="email" component="div" className="text-red-500" />
+                            </div>
                         </div>
                         <div className="mb-4">
                             <label htmlFor="password" className="block mb-1">Password</label>
                             <PasswordField />
                         </div>
-                        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full">
+                        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full my-2">
                             Sign Up
                         </button>
                         <div className="mt-4 text-center">
