@@ -1,75 +1,12 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Formik, Form, Field, ErrorMessage, useField } from 'formik';
-import * as Yup from 'yup';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { SignupSchema } from '../schema/SignupSchema';
+import { initialValues, SignupFormValues } from '../utility/SignupUtility';
 import { signupUser } from '../api/userAuth';
-
-// Define TypeScript types for form values
-type SignupFormValues = {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-};
-
-// Define custom Yup validation function for password
-const passwordValidation = Yup.string()
-    .required('Password is required')
-    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .matches(/[0-9]/, 'Password must contain at least one number')
-    .matches(/[@$!%*?&]/, 'Password must contain at least one special character')
-    .min(6, 'Password must be at least 6 characters');
-
-// Define Yup schema for form validation
-const SignupSchema = Yup.object().shape({
-    firstName: Yup.string().required('First name is required'),
-    lastName: Yup.string().required('Last name is required'),
-    email: Yup.string().email('Invalid email').required('Email is required'),
-    password: passwordValidation,
-});
-
-const PasswordField: React.FC<{}> = () => {
-    const [field, meta, helpers] = useField('password');
-
-    // Set field as touched only when user starts typing
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        helpers.setValue(event.target.value);
-        if (!meta.touched) {
-            helpers.setTouched(true);
-        }
-    };
-
-    return (
-        <>
-            <input
-                {...field}
-                type="password"
-                className="border p-2 w-full rounded-md outline-none"
-                placeholder="Enter your password"
-                onChange={handleInputChange} // Use handleInputChange for onChange event
-            />
-            {meta.error && meta.touched ? (
-                <div className="h-1">
-                    <div className="text-red-500">{meta.error}</div>
-                </div>
-            ) : (
-                <div className="h-1">
-                </div>
-            )}
-        </>
-    );
-};
+import { PasswordField } from './PasswordField';
 
 const SignupForm: React.FC = () => {
-    // Initial values for the form
-    const initialValues: SignupFormValues = {
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-    };
-
     // Defining the useNavigate hook for the navigation.
     const navigate = useNavigate();
 
