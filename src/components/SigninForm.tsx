@@ -1,11 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { SigninSchema } from '../schema/SigninSchema';
 import { initialValues, SigninFormValues } from '../utility/SigninUtility';
 import { signinUser } from '../api/userAuth';
+import CustomSnackbar from './SnackbarComponent';
 
 const SigninForm: React.FC = () => {
+  // State for Snackbar
+  const [snackbarOpen, setSnackbarOpen] = useState<true | false>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('error');
+
+  // Snackbar close handler
+  const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
   // Defining the useNavigate hook for the navigation.
   const navigate = useNavigate();
 
@@ -13,17 +27,17 @@ const SigninForm: React.FC = () => {
   const handleSubmit = async (values: SigninFormValues) => {
     try {
       const response = await signinUser(values);
-      if (response && response.authToken) {
+      if (response.success && response.authToken) {
         localStorage.setItem("data", JSON.stringify(response.authToken));
+        console.log(response);
         navigate('/Home');
-      } else {
-        console.error("Unexpected response format");
       }
     } catch (error: any) {
-      console.error(error.message);
+      setSnackbarOpen(true);
+      setSnackbarMessage(error.message);
+      setSnackbarSeverity("error");
     }
   };
-
 
   return (
     <div className="p-3 bg-gradient-to-r from-amber-50 to-violet-100 flex items-center justify-center h-screen">
@@ -60,6 +74,7 @@ const SigninForm: React.FC = () => {
           </Form>
         </Formik>
       </div>
+      <CustomSnackbar open={snackbarOpen} onClose={handleClose} message={snackbarMessage} severity={snackbarSeverity} />
     </div>
   );
 };

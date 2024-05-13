@@ -1,21 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { SignupSchema } from '../schema/SignupSchema';
 import { initialValues, SignupFormValues } from '../utility/SignupUtility';
 import { signupUser } from '../api/userAuth';
 import { PasswordField } from './PasswordField';
+import CustomSnackbar from './SnackbarComponent';
 
 const SignupForm: React.FC = () => {
+    // State for Snackbar
+    const [snackbarOpen, setSnackbarOpen] = useState<true | false>(false);
+    const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('error');
+
+    // Snackbar close handler
+    const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbarOpen(false);
+    };
+
     // Defining the useNavigate hook for the navigation.
     const navigate = useNavigate();
 
     // Form submission handler
     const handleSubmit = async (values: SignupFormValues) => {
-        const response = await signupUser(values);
-        if (response.success) {
-            localStorage.setItem("data", JSON.stringify(response.authToken));
-            navigate('/Home');
+        try {
+            const response = await signupUser(values);
+            if (response.success && response.authToken) {
+                localStorage.setItem("data", JSON.stringify(response.authToken));
+                navigate('/Home');
+            }
+        }
+        catch (error: any) {
+            setSnackbarOpen(true);
+            setSnackbarMessage(error.message);
+            setSnackbarSeverity("error");
         }
     };
 
@@ -62,6 +83,7 @@ const SignupForm: React.FC = () => {
                     </Form>
                 </Formik>
             </div>
+            <CustomSnackbar open={snackbarOpen} onClose={handleClose} message={snackbarMessage} severity={snackbarSeverity} />
         </div>
     );
 };
