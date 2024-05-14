@@ -1,22 +1,21 @@
-import { Routes, Route } from 'react-router-dom'
-import SigninForm from './components/SigninForm'
-import SignupForm from './components/SignupForm'
-import Navbar from './components/Navbar'
-import Home from './components/Home'
-// import Custom from './components/Custom'
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import SigninForm from './components/SigninForm';
+import SignupForm from './components/SignupForm';
+import Navbar from './components/Navbar';
+import Home from './components/Home';
 
-const App = () => {
+const App: React.FC = () => {
   return (
     <>
       <Navbar />
       <Routes>
-        {/* <Route path='/' element={<Custom />} /> */}
         <Route path='/' element={<SigninForm />} />
         <Route path='/Signup' element={<SignupForm />} />
         <Route path='/Home' element={<Home />} />
       </Routes>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;

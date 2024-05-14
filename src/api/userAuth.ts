@@ -14,10 +14,17 @@ type UserDataSignin = {
     password: string;
 };
 
-type ApiResponse = {
-    success: boolean;
+type ApiResponseSuccess = {
+    success: true;
     authToken: string;
 }
+
+type ApiResponseError = {
+    success: true;
+    authToken: string;
+}
+
+type ApiResponse = ApiResponseSuccess | ApiResponseError
 
 export const signupUser = async (userData: UserDataSignup): Promise<ApiResponse> => {
     try {
