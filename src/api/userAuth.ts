@@ -20,11 +20,11 @@ type ApiResponseSuccess = {
 }
 
 type ApiResponseError = {
-    success: true;
-    authToken: string;
+    success: false;
+    error: string;
 }
 
-type ApiResponse = ApiResponseSuccess | ApiResponseError
+type ApiResponse = ApiResponseSuccess | ApiResponseError;
 
 export const signupUser = async (userData: UserDataSignup): Promise<ApiResponse> => {
     try {
@@ -44,19 +44,17 @@ export const signinUser = async (userData: UserDataSignin): Promise<ApiResponse>
     }
 }
 
-const handleAxiosError = (error: AxiosError): never => {
+const handleAxiosError = (error: AxiosError<ApiResponse>): ApiResponse => {
     if (error.response) {
-        // The request was made and the server responded with a status code
-        console.error('Server responded with an error:', error.response.data);
-        console.error('Status code:', error.response.status);
-        throw new Error('Server error');
+        // Server responded with an error
+        return { success: false, error: JSON.stringify(error.response.data) };
     } else if (error.request) {
-        // The request was made but no response was received
+        // No response received from the server
         console.error('No response received from the server:', error.request);
-        throw new Error('Network error');
+        return { success: false, error: 'Network error' };
     } else {
-        // Something happened in setting up the request that triggered an error
+        // Error setting up the request
         console.error('Error setting up the request:', error.message);
-        throw new Error('Request error');
+        return { success: false, error: 'Request error' };
     }
 }

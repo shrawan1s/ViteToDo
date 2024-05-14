@@ -28,11 +28,18 @@ const SigninForm: React.FC = () => {
     try {
       const response = await signinUser(values);
       if (response.success && response.authToken) {
+        // Successful signin
         localStorage.setItem("data", JSON.stringify(response.authToken));
-        console.log(response);
         navigate('/Home');
+      } else if ('error' in response) { // Type guard
+        // Unsuccessful signin
+        setSnackbarOpen(true);
+        setSnackbarMessage(response.error); // Access the error property
+        setSnackbarSeverity("error");
       }
     } catch (error: any) {
+      // Error during signin
+      console.log(error);
       setSnackbarOpen(true);
       setSnackbarMessage(error.message);
       setSnackbarSeverity("error");

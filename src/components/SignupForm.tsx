@@ -31,13 +31,19 @@ const SignupForm: React.FC = () => {
             if (response.success && response.authToken) {
                 localStorage.setItem("data", JSON.stringify(response.authToken));
                 navigate('/Home');
+            } else if ('error' in response) { // Type guard
+                // Unsuccessful signin
+                setSnackbarOpen(true);
+                setSnackbarMessage(response.error); // Access the error property
+                setSnackbarSeverity("error");
+              }
+            } catch (error: any) {
+              // Error during signin
+              console.log(error);
+              setSnackbarOpen(true);
+              setSnackbarMessage(error.message);
+              setSnackbarSeverity("error");
             }
-        }
-        catch (error: any) {
-            setSnackbarOpen(true);
-            setSnackbarMessage(error.message);
-            setSnackbarSeverity("error");
-        }
     };
 
     return (
