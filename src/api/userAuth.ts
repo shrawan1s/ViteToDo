@@ -50,7 +50,7 @@ const handleAxiosError = (error: AxiosError<ApiResponse>): ApiResponse => {
         return { success: false, error: JSON.stringify(error.response.data) };
     } else if (error.request) {
         // No response received from the server
-        console.error('No response received from the server:', error.request);
+        console.error('No response received from the server:', error.message);
         return { success: false, error: 'Network error' };
     } else {
         // Error setting up the request
