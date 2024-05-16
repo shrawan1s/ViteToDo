@@ -30,18 +30,16 @@ const SignupForm: React.FC = () => {
         try {
             setBtnDisable(true);
             const response = await signupUser(values);
-            setTimeout(() => {
-                if (response.success && response.authToken) {
-                    localStorage.setItem("data", JSON.stringify(response.authToken));
-                    navigate('/Home');
-                } else if ('error' in response) { // Type guard
-                    // Unsuccessful signin
-                    setBtnDisable(false);
-                    setSnackbarOpen(true);
-                    setSnackbarMessage(response.error); // Access the error property
-                    setSnackbarSeverity("error");
-                }
-            }, 2000);
+            if (response.success && response.authToken) {
+                localStorage.setItem("data", JSON.stringify(response.authToken));
+                navigate('/Home');
+            } else if ('error' in response) { // Type guard
+                // Unsuccessful signin
+                setBtnDisable(false);
+                setSnackbarOpen(true);
+                setSnackbarMessage(response.error); // Access the error property
+                setSnackbarSeverity("error");
+            }
         } catch (error: any) {
             // Error during signin
             setBtnDisable(false);
@@ -86,7 +84,7 @@ const SignupForm: React.FC = () => {
                         </div>
                         <button type="submit" disabled={btnDisable} className={`${btnDisable ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
                             } text-white px-4 py-2 rounded w-full my-2`}>
-                            {btnDisable ? 'Signing Up...' : 'Sign Un'}
+                            {btnDisable ? 'Signing Up...' : 'Sign Up'}
                         </button>
                         <div className="mt-4 text-center">
                             <span className="text-gray-600">Already have an account?</span> {' '}

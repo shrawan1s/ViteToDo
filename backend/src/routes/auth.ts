@@ -74,7 +74,6 @@ router.post('/getuser', fetchUser, async (req: AuthenticatedRequest, res: Respon
 
         res.send(user);
     } catch (error: any) {
-        console.error(error.message);
         res.status(500).send("Internal Server Error");
     }
 });
@@ -86,7 +85,7 @@ router.post('/forgotpassword', async (req: Request, res: Response) => {
 
         // Find user by email
         const user: UserDocument | null = await User.findOne({ email });
-        if (!user) return res.status(404).json({ error: "User not found" });
+        if (!user) return res.status(404).send("User not found");
 
         // Generate JWT token for password reset
         const resetToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
@@ -101,9 +100,8 @@ router.post('/forgotpassword', async (req: Request, res: Response) => {
         // Send password reset email with token
         await sendPasswordResetEmail(email, resetToken);
 
-        res.status(200).json({ message: "Password reset email sent successfully", resetToken });
+        res.status(200).json({ success: true, resetToken, email });
     } catch (error: any) {
-        console.error(error.message);
         res.status(500).send("Internal Server Error");
     }
 });
@@ -114,14 +112,11 @@ router.post('/resetpassword', async (req: Request, res: Response) => {
         // Extract email and resetToken from the request body
         const { email, resetToken, newPassword } = req.body;
 
-        // Validate reset token (you may want to store reset tokens in your database for validation)
-        // For simplicity, we're not validating the reset token here
-
         // Find user by email
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email, resetToken });
 
         if (!user) {
-            return res.status(404).json({ success: false, error: "User not found" });
+            return res.status(404).send("User not found");
         }
 
         // Hash the new password
@@ -134,11 +129,10 @@ router.post('/resetpassword', async (req: Request, res: Response) => {
         await user.save();
 
         // Send a success response
-        res.status(200).json({ success: true, message: "Password reset successfully" });
+        res.status(200).send("Password reset successfully");
     } catch (error) {
         // Handle any errors that occur during the password reset process
-        console.error("Error resetting password:", error);
-        res.status(500).json({ success: false, error: "Failed to reset password" });
+        res.status(500).send("Internal Server Error");
     }
 });
 

@@ -14,6 +14,10 @@ type UserDataSignin = {
     password: string;
 };
 
+type ForgotPassword = {
+    email: string;
+};
+
 type ApiResponseSuccess = {
     success: true;
     authToken: string;
@@ -38,6 +42,15 @@ export const signupUser = async (userData: UserDataSignup): Promise<ApiResponse>
 export const signinUser = async (userData: UserDataSignin): Promise<ApiResponse> => {
     try {
         const response = await axios.post<ApiResponse>(`${BASE_URL}/login`, userData);
+        return response.data;
+    } catch (error: any) {
+        return handleAxiosError(error);
+    }
+}
+
+export const forgotPassword = async (userData: ForgotPassword): Promise<ApiResponse> => {
+    try {
+        const response = await axios.post<ApiResponse>(`${BASE_URL}/forgotpassword`, userData);
         return response.data;
     } catch (error: any) {
         return handleAxiosError(error);

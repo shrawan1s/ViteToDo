@@ -29,19 +29,17 @@ const SigninForm: React.FC = () => {
     try {
       setBtnDisable(true);
       const response = await signinUser(values);
-      setTimeout(() => {
-        if (response.success && response.authToken) {
-          // Successful signin
-          localStorage.setItem("data", JSON.stringify(response.authToken));
-          navigate('/Home');
-        } else if ('error' in response) { // Type guard
-          // Unsuccessful signin
-          setBtnDisable(false);
-          setSnackbarOpen(true);
-          setSnackbarMessage(response.error); // Access the error property
-          setSnackbarSeverity("error");
-        }
-      }, 2000);
+      if (response.success && response.authToken) {
+        // Successful signin
+        localStorage.setItem("data", JSON.stringify(response.authToken));
+        navigate('/Home');
+      } else if ('error' in response) { // Type guard
+        // Unsuccessful signin
+        setBtnDisable(false);
+        setSnackbarOpen(true);
+        setSnackbarMessage(response.error); // Access the error property
+        setSnackbarSeverity("error");
+      }
     } catch (error: any) {
       // Error during signin
       setBtnDisable(false);
@@ -74,7 +72,7 @@ const SigninForm: React.FC = () => {
               </div>
             </div>
             <div className="mb-4">
-              <Link to="/forgot-password" className="text-blue-500">Forgot your password?</Link>
+              <Link to="/ForgotPassword" className="text-blue-500">Forgot your password?</Link>
             </div>
             <button type="submit" disabled={btnDisable} className={`${btnDisable ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
               } text-white px-4 py-2 rounded w-full`}>
