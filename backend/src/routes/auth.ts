@@ -11,13 +11,12 @@ const router = express.Router();
 
 // Route for creating a user
 router.post('/createuser', validateCreateUser, async (req: Request, res: Response) => {
-    let success = false;
     try {
         const { firstName, lastName, email, password }: { firstName: string; lastName: string; email: string; password: string; } = req.body;
 
         // Check if user with the email already exists
         let user: UserDocument | null = await User.findOne({ email });
-        if (user) return res.status(409).send("Email already exists");
+        if (user) return res.status(409).json({ success: false, error: "Email already exists" });
 
         // Hash the password
         const salt = await bcrypt.genSalt(10);
@@ -30,8 +29,7 @@ router.post('/createuser', validateCreateUser, async (req: Request, res: Respons
         const data = { user: { id: user?.id } };
         const authToken = jwt.sign(data, JWT_SECRET);
 
-        success = true;
-        res.json({ success, authToken });
+        res.json({ success: true, authToken, message: "User created successfully" });
     } catch (error: any) {
         console.error(error.message);
         res.status(500).send("Internal Server Error");
@@ -40,24 +38,22 @@ router.post('/createuser', validateCreateUser, async (req: Request, res: Respons
 
 // Route for user login
 router.post('/login', async (req: Request, res: Response) => {
-    let success = false;
     try {
         const { email, password }: { email: string; password: string; } = req.body;
 
         // Find user by email
         let user: UserDocument | null = await User.findOne({ email });
-        if (!user) return res.status(401).send("Please enter correct credentials");
+        if (!user) return res.status(401).json({ success: false, error: "Please enter correct credentials" });
 
         // Compare passwords
         const passwordCompare = await bcrypt.compare(password, user.password);
-        if (!passwordCompare) return res.status(401).send("Please enter correct credentials");
+        if (!passwordCompare) return res.status(401).json({ success: false, error: "Please enter correct credentials" });
 
         // Generate JWT token
         const data = { user: { id: user.id } };
         const authToken = jwt.sign(data, JWT_SECRET);
 
-        success = true;
-        res.json({ success, authToken });
+        res.json({ success: true, authToken, message: "Login successfully" });
     } catch (error: any) {
         console.error(error.message);
         res.status(500).send("Internal Server Error");
@@ -70,7 +66,7 @@ router.post('/getuser', fetchUser, async (req: AuthenticatedRequest, res: Respon
         const userId: string = req.user.id;
         const user: UserDocument | null = await User.findById(userId).select("-password");
 
-        if (!user) return res.status(404).send("User not found");
+        if (!user) return res.status(404).json({ success: false, error: "User not found" });
 
         res.send(user);
     } catch (error: any) {
@@ -85,7 +81,7 @@ router.post('/forgotpassword', async (req: Request, res: Response) => {
 
         // Find user by email
         const user: UserDocument | null = await User.findOne({ email });
-        if (!user) return res.status(404).send("User not found");
+        if (!user) return res.status(404).json({ success: false, error: "User not found" });
 
         // Generate JWT token for password reset
         const resetToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
@@ -100,7 +96,7 @@ router.post('/forgotpassword', async (req: Request, res: Response) => {
         // Send password reset email with token
         await sendPasswordResetEmail(email, resetToken);
 
-        res.status(200).json({ success: true, resetToken, email });
+        res.status(200).json({ success: true, message: "Link sent to your email", resetToken, email });
     } catch (error: any) {
         res.status(500).send("Internal Server Error");
     }
@@ -110,13 +106,13 @@ router.post('/forgotpassword', async (req: Request, res: Response) => {
 router.post('/resetpassword', async (req: Request, res: Response) => {
     try {
         // Extract email and resetToken from the request body
-        const { email, resetToken, newPassword } = req.body;
+        const { resetToken, newPassword } = req.body;
 
         // Find user by email
-        const user = await User.findOne({ email, resetToken });
+        const user = await User.findOne({ resetToken });
 
         if (!user) {
-            return res.status(404).send("User not found");
+            return res.status(404).json({ success: false, error: "User not found" });
         }
 
         // Hash the new password
@@ -129,7 +125,7 @@ router.post('/resetpassword', async (req: Request, res: Response) => {
         await user.save();
 
         // Send a success response
-        res.status(200).send("Password reset successfully");
+        res.status(200).json({ success: true, message: "Password reset successfully" });
     } catch (error) {
         // Handle any errors that occur during the password reset process
         res.status(500).send("Internal Server Error");

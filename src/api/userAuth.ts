@@ -1,34 +1,8 @@
 import axios, { AxiosError } from 'axios';
+import { ApiForgotPasswordResponse, ApiResponse, ApiResponseError, ApiResponseForgotPasswordError, ForgotPassword, UserDataSignin, UserDataSignup } from '../utility/userAuth';
 
 const BASE_URL = 'http://localhost:3000/api/auth';
 
-type UserDataSignup = {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-};
-
-type UserDataSignin = {
-    email: string;
-    password: string;
-};
-
-type ForgotPassword = {
-    email: string;
-};
-
-type ApiResponseSuccess = {
-    success: true;
-    authToken: string;
-}
-
-type ApiResponseError = {
-    success: false;
-    error: string;
-}
-
-type ApiResponse = ApiResponseSuccess | ApiResponseError;
 
 export const signupUser = async (userData: UserDataSignup): Promise<ApiResponse> => {
     try {
@@ -48,19 +22,34 @@ export const signinUser = async (userData: UserDataSignin): Promise<ApiResponse>
     }
 }
 
-export const forgotPassword = async (userData: ForgotPassword): Promise<ApiResponse> => {
+export const forgotPassword = async (userData: ForgotPassword): Promise<ApiForgotPasswordResponse> => {
     try {
-        const response = await axios.post<ApiResponse>(`${BASE_URL}/forgotpassword`, userData);
+        const response = await axios.post<ApiForgotPasswordResponse>(`${BASE_URL}/forgotpassword`, userData);
         return response.data;
     } catch (error: any) {
-        return handleAxiosError(error);
+        return handleAxiosForgotPasswordError(error);
     }
 }
 
-const handleAxiosError = (error: AxiosError<ApiResponse>): ApiResponse => {
+const handleAxiosError = (error: AxiosError<ApiResponseError>): ApiResponseError => {
     if (error.response) {
         // Server responded with an error
-        return { success: false, error: JSON.stringify(error.response.data) };
+        return { success: false, error: JSON.stringify(error.response.data.error) };
+    } else if (error.request) {
+        // No response received from the server
+        console.error('No response received from the server:', error.message);
+        return { success: false, error: 'Network error' };
+    } else {
+        // Error setting up the request
+        console.error('Error setting up the request:', error.message);
+        return { success: false, error: 'Request error' };
+    }
+}
+
+const handleAxiosForgotPasswordError = (error: AxiosError<ApiResponseForgotPasswordError>): ApiResponseForgotPasswordError => {
+    if (error.response) {
+        // Server responded with an error
+        return { success: false, error: JSON.stringify(error.response.data.error) };
     } else if (error.request) {
         // No response received from the server
         console.error('No response received from the server:', error.message);

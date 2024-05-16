@@ -30,18 +30,21 @@ const SigninForm: React.FC = () => {
       setBtnDisable(true);
       const response = await signinUser(values);
       if (response.success && response.authToken) {
-        // Successful signin
+        setSnackbarOpen(true);
+        setSnackbarMessage(response.message);
+        setSnackbarSeverity("success");
         localStorage.setItem("data", JSON.stringify(response.authToken));
-        navigate('/Home');
-      } else if ('error' in response) { // Type guard
-        // Unsuccessful signin
+        setTimeout(() => {
+          setBtnDisable(false);
+          navigate('/Home');
+        }, 600);
+      } else if ('error' in response) {
         setBtnDisable(false);
         setSnackbarOpen(true);
-        setSnackbarMessage(response.error); // Access the error property
+        setSnackbarMessage(response.error);
         setSnackbarSeverity("error");
       }
     } catch (error: any) {
-      // Error during signin
       setBtnDisable(false);
       setSnackbarOpen(true);
       setSnackbarMessage(error.message);
@@ -76,7 +79,7 @@ const SigninForm: React.FC = () => {
             </div>
             <button type="submit" disabled={btnDisable} className={`${btnDisable ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
               } text-white px-4 py-2 rounded w-full`}>
-              {btnDisable ? 'Signing In...' : 'Sign In'}
+              Sign In
             </button>
             <div className="mt-4 text-center">
               <span className="text-gray-600">Don't have an account?</span> {' '}

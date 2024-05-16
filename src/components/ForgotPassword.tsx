@@ -27,18 +27,15 @@ const ForgotPassword: React.FC = () => {
       const response = await forgotPassword(values);
       if (response.success) {
         setSnackbarOpen(true);
-        setSnackbarMessage(response.authToken); // Access the error property
-        setSnackbarSeverity("error");
-        // Successful signin
-      } else if ('error' in response) { // Type guard
-        // Unsuccessful signin
+        setSnackbarMessage(response.message);
+        setSnackbarSeverity("success");
+      } else if ('error' in response) {
         setBtnDisable(false);
         setSnackbarOpen(true);
-        setSnackbarMessage(response.error); // Access the error property
+        setSnackbarMessage(response.error);
         setSnackbarSeverity("error");
       }
     } catch (error: any) {
-      // Error during signin
       setBtnDisable(false);
       setSnackbarOpen(true);
       setSnackbarMessage(error.message);
@@ -62,8 +59,8 @@ const ForgotPassword: React.FC = () => {
               </div>
             </div>
             <button type="submit" disabled={btnDisable} className={`${btnDisable ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-              } text-white px-4 py-2 rounded w-full`}>
-              {btnDisable ? 'Sending...' : 'Send'}
+              } text-white px-4 py-2 mt-2 rounded w-full`}>
+              Send
             </button>
           </Form>
         </Formik>
