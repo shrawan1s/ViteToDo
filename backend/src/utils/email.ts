@@ -22,7 +22,7 @@ export const sendPasswordResetEmail = async (email: string, resetToken: string):
       from: '"Maddison Foo Koch 👻" <maddison53@ethereal.email>', // Sender address
       to: email, // Recipient address
       subject: 'Password Reset', // Email subject
-      html: `<p>Click <a href="http://localhost/api/auth/resetpassword/${resetToken}">here</a> to reset your password.</p>`, // Email body with reset link
+      html: `<p>Click <a href="http://localhost:5173/resetpassword/${resetToken}">here</a> to reset your password.</p>`, // Email body with reset link
     });
   } catch (error) {
     console.error('Error sending password reset email:', error);

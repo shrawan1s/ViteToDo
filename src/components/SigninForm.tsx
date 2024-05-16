@@ -11,6 +11,7 @@ const SigninForm: React.FC = () => {
   const [snackbarOpen, setSnackbarOpen] = useState<true | false>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('error');
+  const [btnDisable, setBtnDisable] = useState<true | false>(false)
 
   // Snackbar close handler
   const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
@@ -26,20 +27,24 @@ const SigninForm: React.FC = () => {
   // Form submission handler
   const handleSubmit = async (values: SigninFormValues) => {
     try {
+      setBtnDisable(true);
       const response = await signinUser(values);
-      if (response.success && response.authToken) {
-        // Successful signin
-        localStorage.setItem("data", JSON.stringify(response.authToken));
-        navigate('/Home');
-      } else if ('error' in response) { // Type guard
-        // Unsuccessful signin
-        setSnackbarOpen(true);
-        setSnackbarMessage(response.error); // Access the error property
-        setSnackbarSeverity("error");
-      }
+      setTimeout(() => {
+        if (response.success && response.authToken) {
+          // Successful signin
+          localStorage.setItem("data", JSON.stringify(response.authToken));
+          navigate('/Home');
+        } else if ('error' in response) { // Type guard
+          // Unsuccessful signin
+          setBtnDisable(false);
+          setSnackbarOpen(true);
+          setSnackbarMessage(response.error); // Access the error property
+          setSnackbarSeverity("error");
+        }
+      }, 2000);
     } catch (error: any) {
       // Error during signin
-      console.log(error);
+      setBtnDisable(false);
       setSnackbarOpen(true);
       setSnackbarMessage(error.message);
       setSnackbarSeverity("error");
@@ -71,8 +76,9 @@ const SigninForm: React.FC = () => {
             <div className="mb-4">
               <Link to="/forgot-password" className="text-blue-500">Forgot your password?</Link>
             </div>
-            <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full">
-              Sign In
+            <button type="submit" disabled={btnDisable} className={`${btnDisable ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+              } text-white px-4 py-2 rounded w-full`}>
+              {btnDisable ? 'Signing In...' : 'Sign In'}
             </button>
             <div className="mt-4 text-center">
               <span className="text-gray-600">Don't have an account?</span> {' '}

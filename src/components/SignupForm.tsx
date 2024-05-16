@@ -12,6 +12,7 @@ const SignupForm: React.FC = () => {
     const [snackbarOpen, setSnackbarOpen] = useState<true | false>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>('');
     const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('error');
+    const [btnDisable, setBtnDisable] = useState<true | false>(false)
 
     // Snackbar close handler
     const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
@@ -27,23 +28,27 @@ const SignupForm: React.FC = () => {
     // Form submission handler
     const handleSubmit = async (values: SignupFormValues) => {
         try {
+            setBtnDisable(true);
             const response = await signupUser(values);
-            if (response.success && response.authToken) {
-                localStorage.setItem("data", JSON.stringify(response.authToken));
-                navigate('/Home');
-            } else if ('error' in response) { // Type guard
-                // Unsuccessful signin
-                setSnackbarOpen(true);
-                setSnackbarMessage(response.error); // Access the error property
-                setSnackbarSeverity("error");
-              }
-            } catch (error: any) {
-              // Error during signin
-              console.log(error);
-              setSnackbarOpen(true);
-              setSnackbarMessage(error.message);
-              setSnackbarSeverity("error");
-            }
+            setTimeout(() => {
+                if (response.success && response.authToken) {
+                    localStorage.setItem("data", JSON.stringify(response.authToken));
+                    navigate('/Home');
+                } else if ('error' in response) { // Type guard
+                    // Unsuccessful signin
+                    setBtnDisable(false);
+                    setSnackbarOpen(true);
+                    setSnackbarMessage(response.error); // Access the error property
+                    setSnackbarSeverity("error");
+                }
+            }, 2000);
+        } catch (error: any) {
+            // Error during signin
+            setBtnDisable(false);
+            setSnackbarOpen(true);
+            setSnackbarMessage(error.message);
+            setSnackbarSeverity("error");
+        }
     };
 
     return (
@@ -79,8 +84,9 @@ const SignupForm: React.FC = () => {
                             <label htmlFor="password" className="block mb-1">Password</label>
                             <PasswordField />
                         </div>
-                        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full my-2">
-                            Sign Up
+                        <button type="submit" disabled={btnDisable} className={`${btnDisable ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+                            } text-white px-4 py-2 rounded w-full my-2`}>
+                            {btnDisable ? 'Signing Up...' : 'Sign Un'}
                         </button>
                         <div className="mt-4 text-center">
                             <span className="text-gray-600">Already have an account?</span> {' '}
