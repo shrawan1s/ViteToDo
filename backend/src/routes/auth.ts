@@ -105,14 +105,19 @@ router.post('/forgotpassword', async (req: Request, res: Response) => {
 // Route for resetting password
 router.post('/resetpassword', async (req: Request, res: Response) => {
     try {
-        // Extract email and resetToken from the request body
+        // Extract resetToken and newPassword from the request body
         const { resetToken, newPassword } = req.body;
 
-        // Find user by email
+        // Find user by resetToken
         const user = await User.findOne({ resetToken });
 
         if (!user) {
             return res.status(404).json({ success: false, error: "User not found" });
+        }
+
+        // Check if reset token has expired
+        if (user.resetTokenExpiresAt && user.resetTokenExpiresAt < new Date()) {
+            return res.status(400).json({ success: false, error: "Reset token has expired" });
         }
 
         // Hash the new password
@@ -121,6 +126,10 @@ router.post('/resetpassword', async (req: Request, res: Response) => {
         // Update user's password with the new hashed password
         user.password = hashedPassword;
 
+        // Clear the reset token and expiration time
+        user.resetToken = undefined;
+        user.resetTokenExpiresAt = undefined;
+
         // Save the updated user object to the database
         await user.save();
 
@@ -128,8 +137,10 @@ router.post('/resetpassword', async (req: Request, res: Response) => {
         res.status(200).json({ success: true, message: "Password reset successfully" });
     } catch (error) {
         // Handle any errors that occur during the password reset process
+        console.error("Error resetting password:", error);
         res.status(500).send("Internal Server Error");
     }
 });
+
 
 export default router;

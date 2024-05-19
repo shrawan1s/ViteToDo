@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { ApiForgotPasswordResponse, ApiResponse, ApiResponseError, ApiResponseForgotPasswordError, ForgotPassword, UserDataSignin, UserDataSignup } from '../utility/userAuth';
+import { ApiPasswordResponse, ApiResponse, ApiResponseError, ApiResponsePasswordError, ForgotPassword, UserDataSignin, UserDataSignup } from '../utility/UserAuth'
 
 const BASE_URL = 'http://localhost:3000/api/auth';
 
@@ -22,9 +22,18 @@ export const signinUser = async (userData: UserDataSignin): Promise<ApiResponse>
     }
 }
 
-export const forgotPassword = async (userData: ForgotPassword): Promise<ApiForgotPasswordResponse> => {
+export const forgotPassword = async (userData: ForgotPassword): Promise<ApiPasswordResponse> => {
     try {
-        const response = await axios.post<ApiForgotPasswordResponse>(`${BASE_URL}/forgotpassword`, userData);
+        const response = await axios.post<ApiPasswordResponse>(`${BASE_URL}/forgotpassword`, userData);
+        return response.data;
+    } catch (error: any) {
+        return handleAxiosForgotPasswordError(error);
+    }
+}
+
+export const resetPassword = async (resetToken: string, newPassword: string): Promise<ApiPasswordResponse> => {
+    try {
+        const response = await axios.post<ApiPasswordResponse>(`${BASE_URL}/resetpassword`, { resetToken, newPassword });
         return response.data;
     } catch (error: any) {
         return handleAxiosForgotPasswordError(error);
@@ -46,7 +55,7 @@ const handleAxiosError = (error: AxiosError<ApiResponseError>): ApiResponseError
     }
 }
 
-const handleAxiosForgotPasswordError = (error: AxiosError<ApiResponseForgotPasswordError>): ApiResponseForgotPasswordError => {
+const handleAxiosForgotPasswordError = (error: AxiosError<ApiResponsePasswordError>): ApiResponsePasswordError => {
     if (error.response) {
         // Server responded with an error
         return { success: false, error: JSON.stringify(error.response.data.error) };
@@ -60,3 +69,4 @@ const handleAxiosForgotPasswordError = (error: AxiosError<ApiResponseForgotPassw
         return { success: false, error: 'Request error' };
     }
 }
+
