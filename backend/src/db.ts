@@ -1,12 +1,15 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
-const url: string = 'mongodb://localhost:27017/MyDB'; // MongoDB connection URL
+dotenv.config();
+
+const url: string | undefined = process.env.MONGO_URI; // MongoDB connection URL
 
 // Function to connect to MongoDB using Mongoose
 export async function connectDB(): Promise<void> {
     try {
         // Connect to MongoDB using Mongoose
-        await mongoose.connect(url);
+        await mongoose.connect(url as string);
 
         // Log a success message if the connection is established
         console.log('Connected to MongoDB');
