@@ -57,7 +57,7 @@ router.post('/login', validateLoginUser, async (req: Request<{}, {}, { email: st
 
 router.post('/getuser', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const userId: string = req.user.id;
+        const userId: string = req.user!.id;
         const user: UserDocument | null = await User.findById(userId).select("-password");
 
         if (!user) return res.status(404).json({ success: false, error: "User not found" });

@@ -1,24 +1,15 @@
-import mongoose, { Schema, Document, ObjectId } from 'mongoose';
-import { UserDocument } from './userSchema';
+import { Schema, model, Document, Types } from 'mongoose';
 
-// Define the type for the note document
-export type NoteSchema = {
-    userId: ObjectId | UserDocument;
-    note: string;
-};
+export type NoteDocument = {
+    task: string;
+    date: Date;
+    user: Types.ObjectId; // Use Types.ObjectId for the user field
+}
 
-// Define the schema for the note collection
-const noteSchemaDefinition: Record<keyof NoteSchema, any> = {
-    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    note: { type: String, required: true }
-};
-
-// Create the note schema
-const noteSchema = new Schema<NoteSchema & Document>({
-    ...noteSchemaDefinition
+const NoteSchema = new Schema<NoteDocument>({
+    task: { type: String, required: true },
+    date: { type: Date, required: true },
+    user: { type: Schema.Types.ObjectId, ref: 'User', required: true } // Correctly define the user field
 });
 
-// Define the note document type
-export type NoteDocument = NoteSchema & Document;
-
-export default mongoose.model<NoteDocument>('Note', noteSchema);
+export const Note = model<NoteDocument>('Note', NoteSchema);

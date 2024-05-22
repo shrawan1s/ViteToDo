@@ -1,18 +1,17 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Function to send password reset email
 export const sendPasswordResetEmail = async (email: string, resetToken: string): Promise<void> => {
-
-  // Create a test account to use for sending emails.
-  const testAccount = await nodemailer.createTestAccount();
-
   // Create a nodemailer transporter with your email service provider configuration
   const transporter = nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
+    host: process.env.PROVIDER_HOST,
     port: 587,
     auth: {
-      user: 'rosario.leffler28@ethereal.email',
-      pass: 'v5Hg7mUAZrwuNe1wYF'
+      user: process.env.USER_NAME as string,
+      pass: process.env.PASS_WORD as string
     }
   });
 

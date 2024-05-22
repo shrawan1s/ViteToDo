@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import cors from 'cors';
 import { connectDB } from "./db";
 import authRouter from './routes/auth';
+import noteRouter from './routes/note';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -19,6 +20,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/app', noteRouter);
 
 app.listen(port as number, () => {
   console.log(`Server is running on Port ${port}`);
