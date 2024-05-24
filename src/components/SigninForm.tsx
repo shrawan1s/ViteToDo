@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { SigninSchema } from '../schema/SigninSchema';
@@ -11,6 +11,15 @@ type SigninFormProps = {
 }
 
 const SigninForm: React.FC<SigninFormProps> = ({ onLogin }) => {
+  // Defining the useNavigate hook for the navigation.
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate(`/Home/${JSON.parse(token)}`);
+    }
+  }, [navigate])
 
   // State for Snackbar
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
@@ -25,9 +34,6 @@ const SigninForm: React.FC<SigninFormProps> = ({ onLogin }) => {
     }
     setSnackbarOpen(false);
   };
-
-  // Defining the useNavigate hook for the navigation.
-  const navigate = useNavigate();
 
   // Form submission handler
   const handleSubmit = async (values: SigninFormValues) => {

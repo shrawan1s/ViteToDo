@@ -1,4 +1,4 @@
-export interface ResetPasswordFormValues {
+export type ResetPasswordFormValues = {
     password: string;
 }
 

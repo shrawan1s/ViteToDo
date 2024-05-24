@@ -16,7 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({ isLoggedIn, onLogout }) => {
             <div className="flex items-center text-white">
                 {isLoggedIn ? (
                     <>
-                        <span>Jhone Doe</span>
+                        <span>Jhon doe</span>
                         <FontAwesomeIcon icon={faUser} className="text-xl mr-2 mx-3" />
                         <FontAwesomeIcon
                             icon={faSignOutAlt}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { SignupSchema } from '../schema/SignupSchema';
@@ -12,6 +12,16 @@ type SignupFormProps = {
 }
 
 const SignupForm: React.FC<SignupFormProps> = ({ onLogin }) => {
+    // Defining the useNavigate hook for the navigation.
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            navigate(`/Home/${JSON.parse(token)}`);
+        }
+    }, [navigate])
+
     // State for Snackbar
     const [snackbarOpen, setSnackbarOpen] = useState<true | false>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>('');
@@ -25,9 +35,6 @@ const SignupForm: React.FC<SignupFormProps> = ({ onLogin }) => {
         }
         setSnackbarOpen(false);
     };
-
-    // Defining the useNavigate hook for the navigation.
-    const navigate = useNavigate();
 
     // Form submission handler
     const handleSubmit = async (values: SignupFormValues) => {

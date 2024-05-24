@@ -1,8 +1,7 @@
 import axios, { AxiosError } from 'axios';
-import { ApiPasswordResponse, ApiResponse, ApiResponseError, ApiResponsePasswordError, ForgotPassword, UserDataSignin, UserDataSignup } from '../utility/UserAuth'
+import { ApiPasswordResponse, ApiResponse, ApiResponseError, ApiResponsePasswordError, ForgotPassword, GetUser, GetUserResponse, UserDataSignin, UserDataSignup } from '../utility/UserAuth'
 
-const BASE_URL = 'http://localhost:3000/api/auth';
-
+const BASE_URL = import.meta.env.BASE_URL;
 
 export const signupUser = async (userData: UserDataSignup): Promise<ApiResponse> => {
     try {
@@ -16,6 +15,16 @@ export const signupUser = async (userData: UserDataSignup): Promise<ApiResponse>
 export const signinUser = async (userData: UserDataSignin): Promise<ApiResponse> => {
     try {
         const response = await axios.post<ApiResponse>(`${BASE_URL}/login`, userData);
+        return response.data;
+    } catch (error: any) {
+        return handleAxiosError(error);
+    }
+}
+
+export const getUser = async (token: GetUser): Promise<GetUserResponse> => {
+    try {
+        console.log(token);
+        const response = await axios.post<GetUserResponse>(`${BASE_URL}/getuser`, token);
         return response.data;
     } catch (error: any) {
         return handleAxiosError(error);

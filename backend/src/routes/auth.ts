@@ -62,7 +62,7 @@ router.post('/getuser', fetchUser, async (req: AuthenticatedRequest, res: Respon
 
         if (!user) return res.status(404).json({ success: false, error: "User not found" });
 
-        res.send(user);
+        res.json({ user });
     } catch (error: any) {
         res.status(500).send("Internal Server Error");
     }

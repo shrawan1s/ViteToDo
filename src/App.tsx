@@ -23,7 +23,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path='/' element={<SigninForm onLogin={() => setIsLoggedIn(true)} />} />
         <Route path='/Signup' element={<SignupForm onLogin={() => setIsLoggedIn(true)} />} />
-        <Route path='/Home/:authToken' element={<Home />} />
+        <Route path='/Home/:token' element={<Home onLogin={() => setIsLoggedIn(true)} />} />
         <Route path='/ForgotPassword' element={<ForgotPassword />} />
         <Route path='/ResetPassword/:resetToken' element={<ResetPassword />} />
       </Routes>

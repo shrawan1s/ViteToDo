@@ -1,14 +1,15 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
 
-export interface AuthenticatedRequest extends Request {
-    user?: { id: string }; // Define the user property
+// Define the type for AuthenticatedRequest
+export type AuthenticatedRequest = Request & {
+    user?: { id: string };
 }
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 export const fetchUser: RequestHandler = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    const token = req.body['auth-token'] || '';
+    const token = req.body['token'] || '';
     if (!token) {
         return res.status(401).json({ error: "Authentication token is missing" });
     }
