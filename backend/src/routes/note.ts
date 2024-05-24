@@ -75,4 +75,16 @@ router.delete('/deletenote/:id', fetchUser, async (req: AuthenticatedRequest, re
     }
 });
 
+// ROUTE 4: Delete all existing Notes using DELETE "/api/notes/deleteallnote". Login required.
+router.delete('/deleteallnote', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        // Directly use the authenticated user's ID to delete notes
+        const deletedNotes = await Note.deleteMany({ user: req.user!.id });
+        res.json({ "Success": "All notes have been deleted", deletedNotes });
+    } catch (error: any) {
+        console.error(error.message);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
 export default router;
