@@ -6,12 +6,17 @@ import { initialValues, SigninFormValues } from '../utility/SigninUtility';
 import { signinUser } from '../api/userAuth';
 import CustomSnackbar from './SnackbarComponent';
 
-const SigninForm: React.FC = () => {
+type SigninFormProps = {
+  onLogin: () => void;
+}
+
+const SigninForm: React.FC<SigninFormProps> = ({ onLogin }) => {
+
   // State for Snackbar
-  const [snackbarOpen, setSnackbarOpen] = useState<true | false>(false);
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('error');
-  const [btnDisable, setBtnDisable] = useState<true | false>(false)
+  const [btnDisable, setBtnDisable] = useState<boolean>(false);
 
   // Snackbar close handler
   const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
@@ -33,10 +38,11 @@ const SigninForm: React.FC = () => {
         setSnackbarOpen(true);
         setSnackbarMessage(response.message);
         setSnackbarSeverity("success");
-        localStorage.setItem("data", JSON.stringify(response.authToken));
+        localStorage.setItem("token", JSON.stringify(response.authToken));
         setTimeout(() => {
           setBtnDisable(false);
-          navigate('/Home');
+          onLogin(); // Call onLogin when the form is successfully submitted
+          navigate(`/Home/${response.authToken}`);
         }, 600);
       } else if ('error' in response) {
         setBtnDisable(false);

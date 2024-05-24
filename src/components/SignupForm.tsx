@@ -7,7 +7,11 @@ import { signupUser } from '../api/userAuth';
 import { PasswordField } from './PasswordField';
 import CustomSnackbar from './SnackbarComponent';
 
-const SignupForm: React.FC = () => {
+type SignupFormProps = {
+    onLogin: () => void;
+}
+
+const SignupForm: React.FC<SignupFormProps> = ({ onLogin }) => {
     // State for Snackbar
     const [snackbarOpen, setSnackbarOpen] = useState<true | false>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>('');
@@ -34,10 +38,11 @@ const SignupForm: React.FC = () => {
                 setSnackbarOpen(true);
                 setSnackbarMessage(response.message);
                 setSnackbarSeverity("success");
-                localStorage.setItem("data", JSON.stringify(response.authToken));
+                localStorage.setItem("token", JSON.stringify(response.authToken));
                 setTimeout(() => {
                     setBtnDisable(false);
-                    navigate('/Home');
+                    onLogin();
+                    navigate(`/Home/${response.authToken}`);
                 }, 600);
             } else if ('error' in response) {
                 setBtnDisable(false);
@@ -54,7 +59,7 @@ const SignupForm: React.FC = () => {
     };
 
     return (
-        <div className="mt-5 bg-gradient-to-r from-amber-50 to-violet-100 flex items-center justify-center h-screen">
+        <div className="p-3 mt-5 bg-gradient-to-r from-amber-50 to-violet-100 flex items-center justify-center h-screen">
             <div className="max-w-sm w-full">
                 <h2 className="text-xl font-bold mb-4 text-center">Sign Up</h2>
                 {/* Formik handles form state and submission */}
