@@ -78,4 +78,3 @@ const handleAxiosForgotPasswordError = (error: AxiosError<ApiResponsePasswordErr
         return { success: false, error: 'Request error' };
     }
 }
-

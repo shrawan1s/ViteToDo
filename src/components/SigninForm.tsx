@@ -1,66 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { SigninSchema } from '../schema/SigninSchema';
 import { initialValues, SigninFormValues } from '../utility/SigninUtility';
-import { signinUser } from '../api/userAuth';
+import { useDispatch } from 'react-redux';
+import { signin } from '../app/actions/authActions';
 import CustomSnackbar from './SnackbarComponent';
 
-type SigninFormProps = {
-  onLogin: () => void;
-}
-
-const SigninForm: React.FC<SigninFormProps> = ({ onLogin }) => {
-  // Defining the useNavigate hook for the navigation.
+const SigninForm: React.FC = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate(`/Home/${JSON.parse(token)}`);
-    }
-  }, [navigate])
-
-  // State for Snackbar
-  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
-  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('error');
-  const [btnDisable, setBtnDisable] = useState<boolean>(false);
-
-  // Snackbar close handler
-  const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackbarOpen(false);
-  };
-
-  // Form submission handler
   const handleSubmit = async (values: SigninFormValues) => {
     try {
-      setBtnDisable(true);
-      const response = await signinUser(values);
-      if (response.success && response.authToken) {
-        setSnackbarOpen(true);
-        setSnackbarMessage(response.message);
-        setSnackbarSeverity("success");
-        localStorage.setItem("token", JSON.stringify(response.authToken));
-        setTimeout(() => {
-          setBtnDisable(false);
-          onLogin(); // Call onLogin when the form is successfully submitted
-          navigate(`/Home/${response.authToken}`);
-        }, 600);
-      } else if ('error' in response) {
-        setBtnDisable(false);
-        setSnackbarOpen(true);
-        setSnackbarMessage(response.error);
-        setSnackbarSeverity("error");
-      }
-    } catch (error: any) {
-      setBtnDisable(false);
-      setSnackbarOpen(true);
-      setSnackbarMessage(error.message);
-      setSnackbarSeverity("error");
+      await dispatch(signin(values.email, values.password));
+      // On successful signin, navigate or handle accordingly
+      navigate('/Home'); // Adjust navigation as per your application logic
+    } catch (error) {
+      // Error handling if needed (handled in Redux actions)
     }
   };
 
@@ -68,9 +25,7 @@ const SigninForm: React.FC<SigninFormProps> = ({ onLogin }) => {
     <div className="p-3 bg-gradient-to-r from-amber-50 to-violet-100 flex items-center justify-center h-screen">
       <div className="max-w-sm w-full">
         <h2 className="text-xl font-bold mb-4 text-center">Sign In</h2>
-        {/* Formik handles form state and submission */}
         <Formik initialValues={initialValues} validationSchema={SigninSchema} onSubmit={handleSubmit}>
-          {/* Form component represents the form */}
           <Form>
             <div className="mb-4">
               <label htmlFor="email" className="block mb-1">Email</label>
@@ -89,8 +44,7 @@ const SigninForm: React.FC<SigninFormProps> = ({ onLogin }) => {
             <div className="mb-4">
               <Link to="/ForgotPassword" className="text-blue-500">Forgot your password?</Link>
             </div>
-            <button type="submit" disabled={btnDisable} className={`${btnDisable ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-              } text-white px-4 py-2 rounded w-full`}>
+            <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full">
               Sign In
             </button>
             <div className="mt-4 text-center">
@@ -100,7 +54,7 @@ const SigninForm: React.FC<SigninFormProps> = ({ onLogin }) => {
           </Form>
         </Formik>
       </div>
-      <CustomSnackbar open={snackbarOpen} onClose={handleClose} message={snackbarMessage} severity={snackbarSeverity} />
+      <CustomSnackbar /> {/* Connect CustomSnackbar with Redux if needed */}
     </div>
   );
 };
