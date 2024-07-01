@@ -3,24 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { SignupSchema } from '../schema/SignupSchema';
 import { initialValues, SignupFormValues } from '../utility/SignupUtility';
-import { signupUser } from '../api/userAuth';
 import { PasswordField } from './PasswordField';
 import CustomSnackbar from './SnackbarComponent';
+import { signup } from '../app/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
 
-type SignupFormProps = {
-    onLogin: () => void;
-}
-
-const SignupForm: React.FC<SignupFormProps> = ({ onLogin }) => {
+const SignupForm: React.FC = () => {
     // Defining the useNavigate hook for the navigation.
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            navigate(`/Home/${JSON.parse(token)}`);
-        }
-    }, [navigate])
+    const dispatch = useAppDispatch();
+    const { error, success, token } = useAppSelector((state) => state.auth);
 
     // State for Snackbar
     const [snackbarOpen, setSnackbarOpen] = useState<true | false>(false);
@@ -36,33 +28,27 @@ const SignupForm: React.FC<SignupFormProps> = ({ onLogin }) => {
         setSnackbarOpen(false);
     };
 
+    useEffect(() => {
+        if (success) {
+            setSnackbarSeverity('success');
+            setSnackbarMessage('Signup successful');
+            setSnackbarOpen(true);
+            setBtnDisable(false);
+            if (token) {
+                navigate('/Home');
+            }
+        } else if (error) {
+            setSnackbarSeverity('error');
+            setSnackbarMessage(error);
+            setSnackbarOpen(true);
+            setBtnDisable(false);
+        }
+    }, [success, error, token, navigate]);
+
     // Form submission handler
     const handleSubmit = async (values: SignupFormValues) => {
-        try {
-            setBtnDisable(true);
-            const response = await signupUser(values);
-            if (response.success && response.authToken) {
-                setSnackbarOpen(true);
-                setSnackbarMessage(response.message);
-                setSnackbarSeverity("success");
-                localStorage.setItem("token", JSON.stringify(response.authToken));
-                setTimeout(() => {
-                    setBtnDisable(false);
-                    onLogin();
-                    navigate(`/Home/${response.authToken}`);
-                }, 600);
-            } else if ('error' in response) {
-                setBtnDisable(false);
-                setSnackbarOpen(true);
-                setSnackbarMessage(response.error);
-                setSnackbarSeverity("error");
-            }
-        } catch (error: any) {
-            setBtnDisable(false);
-            setSnackbarOpen(true);
-            setSnackbarMessage(error.message);
-            setSnackbarSeverity("error");
-        }
+        setBtnDisable(true);
+        await dispatch(signup(values));
     };
 
     return (

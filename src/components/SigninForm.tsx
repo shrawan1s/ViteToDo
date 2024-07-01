@@ -1,24 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { SigninSchema } from '../schema/SigninSchema';
 import { initialValues, SigninFormValues } from '../utility/SigninUtility';
-import { useDispatch } from 'react-redux';
-import { signin } from '../app/actions/authActions';
 import CustomSnackbar from './SnackbarComponent';
+import { login } from '../app/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
 
 const SigninForm: React.FC = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { error, success, token } = useAppSelector((state) => state.auth);
+
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('error');
+  const [btnDisable, setBtnDisable] = useState<boolean>(false);
+
+  const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
+  useEffect(() => {
+    if (success) {
+      setSnackbarSeverity('success');
+      setSnackbarMessage('Login successful');
+      setSnackbarOpen(true);
+      setBtnDisable(false);
+      if (token) {
+        navigate('/Home');
+      }
+    } else if (error) {
+      setSnackbarSeverity('error');
+      setSnackbarMessage(error);
+      setSnackbarOpen(true);
+      setBtnDisable(false);
+    }
+  }, [success, error, token, navigate]);
 
   const handleSubmit = async (values: SigninFormValues) => {
-    try {
-      await dispatch(signin(values.email, values.password));
-      // On successful signin, navigate or handle accordingly
-      navigate('/Home'); // Adjust navigation as per your application logic
-    } catch (error) {
-      // Error handling if needed (handled in Redux actions)
-    }
+    setBtnDisable(true);
+    await dispatch(login(values));
   };
 
   return (
@@ -44,7 +69,7 @@ const SigninForm: React.FC = () => {
             <div className="mb-4">
               <Link to="/ForgotPassword" className="text-blue-500">Forgot your password?</Link>
             </div>
-            <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded w-full">
+            <button type="submit" disabled={btnDisable} className={`${btnDisable ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'} text-white px-4 py-2 rounded w-full`}>
               Sign In
             </button>
             <div className="mt-4 text-center">
@@ -54,7 +79,7 @@ const SigninForm: React.FC = () => {
           </Form>
         </Formik>
       </div>
-      <CustomSnackbar /> {/* Connect CustomSnackbar with Redux if needed */}
+      <CustomSnackbar open={snackbarOpen} onClose={handleClose} message={snackbarMessage} severity={snackbarSeverity} />
     </div>
   );
 };

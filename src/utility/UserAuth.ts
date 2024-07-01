@@ -20,7 +20,7 @@ export type GetUser = {
 }
 
 // Output types of data and error.
-export type ApiResponseSuccess = {
+type ApiResponseSuccess = {
     success: true;
     authToken?: string;
     message: string;

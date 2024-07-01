@@ -1,29 +1,23 @@
-import React, { useState } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import SigninForm from './components/SigninForm';
 import SignupForm from './components/SignupForm';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
-    navigate('/');
-  };
-
   return (
     <>
-      <Navbar isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+      <Navbar />
       <Routes>
-        <Route path='/' element={<SigninForm onLogin={() => setIsLoggedIn(true)} />} />
-        <Route path='/Signup' element={<SignupForm onLogin={() => setIsLoggedIn(true)} />} />
-        <Route path='/Home/:token' element={<Home onLogin={() => setIsLoggedIn(true)} />} />
+        <Route path='/' element={<SigninForm />} />
+        <Route path='/Signup' element={<SignupForm />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path='/Home' element={<Home />} />
+        </Route>
         <Route path='/ForgotPassword' element={<ForgotPassword />} />
         <Route path='/ResetPassword/:resetToken' element={<ResetPassword />} />
       </Routes>

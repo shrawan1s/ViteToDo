@@ -1,11 +1,18 @@
 import axios, { AxiosError } from 'axios';
 import { ApiPasswordResponse, ApiResponse, ApiResponseError, ApiResponsePasswordError, ForgotPassword, GetUser, GetUserResponse, UserDataSignin, UserDataSignup } from '../utility/UserAuth'
 
-const BASE_URL = import.meta.env.BASE_URL;
+const BASE_AUTH_URL = "http://localhost:3000/api/auth";
+
+// console.log(BASE_AUTH_URL);
+
+// Create an instance of Axios with a base URL configured
+const axiosInstance = axios.create({
+    baseURL: BASE_AUTH_URL,
+});
 
 export const signupUser = async (userData: UserDataSignup): Promise<ApiResponse> => {
     try {
-        const response = await axios.post<ApiResponse>(`${BASE_URL}/createuser`, userData);
+        const response = await axiosInstance.post<ApiResponse>('/createuser', userData);
         return response.data;
     } catch (error: any) {
         return handleAxiosError(error);
@@ -14,7 +21,7 @@ export const signupUser = async (userData: UserDataSignup): Promise<ApiResponse>
 
 export const signinUser = async (userData: UserDataSignin): Promise<ApiResponse> => {
     try {
-        const response = await axios.post<ApiResponse>(`${BASE_URL}/login`, userData);
+        const response = await axiosInstance.post<ApiResponse>('/login', userData);
         return response.data;
     } catch (error: any) {
         return handleAxiosError(error);
@@ -24,7 +31,7 @@ export const signinUser = async (userData: UserDataSignin): Promise<ApiResponse>
 export const getUser = async (token: GetUser): Promise<GetUserResponse> => {
     try {
         console.log(token);
-        const response = await axios.post<GetUserResponse>(`${BASE_URL}/getuser`, token);
+        const response = await axiosInstance.post<GetUserResponse>('/getuser', token);
         return response.data;
     } catch (error: any) {
         return handleAxiosError(error);
@@ -33,7 +40,7 @@ export const getUser = async (token: GetUser): Promise<GetUserResponse> => {
 
 export const forgotPassword = async (userData: ForgotPassword): Promise<ApiPasswordResponse> => {
     try {
-        const response = await axios.post<ApiPasswordResponse>(`${BASE_URL}/forgotpassword`, userData);
+        const response = await axiosInstance.post<ApiPasswordResponse>('/forgotpassword', userData);
         return response.data;
     } catch (error: any) {
         return handleAxiosForgotPasswordError(error);
@@ -42,7 +49,7 @@ export const forgotPassword = async (userData: ForgotPassword): Promise<ApiPassw
 
 export const resetPassword = async (resetToken: string, newPassword: string): Promise<ApiPasswordResponse> => {
     try {
-        const response = await axios.post<ApiPasswordResponse>(`${BASE_URL}/resetpassword`, { resetToken, newPassword });
+        const response = await axiosInstance.post<ApiPasswordResponse>('/resetpassword', { resetToken, newPassword });
         return response.data;
     } catch (error: any) {
         return handleAxiosForgotPasswordError(error);

@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ResetPasswordSchema } from '../schema/ResetPasswordSchema';
 import { initialValues, ResetPasswordFormValues } from '../utility/ResetPasswordUtility';
-import { resetPassword } from '../api/userAuth';
 import CustomSnackbar from './SnackbarComponent';
+import { resetpassword } from '../app/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
 
 const ResetPassword: React.FC = () => {
-    const { resetToken } = useParams<{ resetToken?: string }>();
+    const dispatch = useAppDispatch();
+    const { error, success, token } = useAppSelector((state) => state.auth);
+
+    const { resetToken } = useParams<{ resetToken: string }>();
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>('');
     const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('error');
@@ -20,29 +24,24 @@ const ResetPassword: React.FC = () => {
         setSnackbarOpen(false);
     };
 
-    const handleSubmit = async (values: ResetPasswordFormValues) => {
-        try {
-            setBtnDisable(true);
-            if (resetToken) {
-                const response = await resetPassword(resetToken, values.password);
-                if (response.success) {
-                    setSnackbarOpen(true);
-                    setSnackbarMessage(response.message);
-                    setSnackbarSeverity("success");
-                } else {
-                    setBtnDisable(false);
-                    setSnackbarOpen(true);
-                    setSnackbarMessage(response.error);
-                    setSnackbarSeverity("error");
-                }
-            } else {
-                throw new Error("Reset token is missing");
-            }
-        } catch (error: any) {
-            setBtnDisable(false);
+    useEffect(() => {
+        if (success) {
+            setSnackbarSeverity('success');
+            setSnackbarMessage('Password reset successful');
             setSnackbarOpen(true);
-            setSnackbarMessage(error.message);
-            setSnackbarSeverity("error");
+            setBtnDisable(false);
+        } else if (error) {
+            setSnackbarSeverity('error');
+            setSnackbarMessage(error);
+            setSnackbarOpen(true);
+            setBtnDisable(false);
+        }
+    }, [success, error, token]);
+
+    const handleSubmit = async (values: ResetPasswordFormValues) => {
+        setBtnDisable(true);
+        if (resetToken) {
+            await dispatch(resetpassword({ resetToken, newPassword: values.password }));
         }
     };
 
