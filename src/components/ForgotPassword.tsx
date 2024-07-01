@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ForgotPasswordSchema } from '../schema/ForgotPasswordSchema';
 import { initialValues, ForgotPasswordFormValues } from '../utility/ForgotPasswordUtility';
-import { forgotPassword } from '../api/userAuth';
 import CustomSnackbar from './SnackbarComponent';
+import { forgotpassword } from '../app/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
 
 const ForgotPassword: React.FC = () => {
+  const dispatch = useAppDispatch();
+  const { error, success, token } = useAppSelector((state) => state.auth);
+
   // State for Snackbar
   const [snackbarOpen, setSnackbarOpen] = useState<true | false>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
@@ -20,27 +24,24 @@ const ForgotPassword: React.FC = () => {
     setSnackbarOpen(false);
   };
 
+  useEffect(() => {
+    if (success) {
+      setSnackbarSeverity('success');
+      setSnackbarMessage('Email sent successful');
+      setSnackbarOpen(true);
+      setBtnDisable(false);
+    } else if (error) {
+      setSnackbarSeverity('error');
+      setSnackbarMessage(error);
+      setSnackbarOpen(true);
+      setBtnDisable(false);
+    }
+  }, [success, error, token]);
+
   // Form submission handler
   const handleSubmit = async (values: ForgotPasswordFormValues) => {
-    try {
-      setBtnDisable(true);
-      const response = await forgotPassword(values);
-      if (response.success) {
-        setSnackbarOpen(true);
-        setSnackbarMessage(response.message);
-        setSnackbarSeverity("success");
-      } else if ('error' in response) {
-        setBtnDisable(false);
-        setSnackbarOpen(true);
-        setSnackbarMessage(response.error);
-        setSnackbarSeverity("error");
-      }
-    } catch (error: any) {
-      setBtnDisable(false);
-      setSnackbarOpen(true);
-      setSnackbarMessage(error.message);
-      setSnackbarSeverity("error");
-    }
+    setBtnDisable(true);
+    await dispatch(forgotpassword(values));
   };
 
   return (

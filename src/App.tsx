@@ -6,6 +6,7 @@ import Navbar from './components/Navbar';
 import Home from './components/Home';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const App: React.FC = () => {
   return (
@@ -14,7 +15,9 @@ const App: React.FC = () => {
       <Routes>
         <Route path='/' element={<SigninForm />} />
         <Route path='/Signup' element={<SignupForm />} />
-        <Route path='/Home' element={<Home />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path='/Home' element={<Home />} />
+        </Route>
         <Route path='/ForgotPassword' element={<ForgotPassword />} />
         <Route path='/ResetPassword/:resetToken' element={<ResetPassword />} />
       </Routes>

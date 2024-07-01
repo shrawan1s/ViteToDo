@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { SigninSchema } from '../schema/SigninSchema';
 import { initialValues, SigninFormValues } from '../utility/SigninUtility';
-import { signinUser } from '../api/userAuth';
 import CustomSnackbar from './SnackbarComponent';
+import { login } from '../app/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
 
 const SigninForm: React.FC = () => {
-  // State for Snackbar
-  const [snackbarOpen, setSnackbarOpen] = useState<true | false>(false);
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { error, success, token } = useAppSelector((state) => state.auth);
+
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('error');
-  const [btnDisable, setBtnDisable] = useState<true | false>(false)
+  const [btnDisable, setBtnDisable] = useState<boolean>(false);
 
-  // Snackbar close handler
   const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
     if (reason === 'clickaway') {
       return;
@@ -21,44 +24,33 @@ const SigninForm: React.FC = () => {
     setSnackbarOpen(false);
   };
 
-  // Defining the useNavigate hook for the navigation.
-  const navigate = useNavigate();
-
-  // Form submission handler
-  const handleSubmit = async (values: SigninFormValues) => {
-    try {
-      setBtnDisable(true);
-      const response = await signinUser(values);
-      if (response.success && response.authToken) {
-        setSnackbarOpen(true);
-        setSnackbarMessage(response.message);
-        setSnackbarSeverity("success");
-        localStorage.setItem("data", JSON.stringify(response.authToken));
-        setTimeout(() => {
-          setBtnDisable(false);
-          navigate('/Home');
-        }, 600);
-      } else if ('error' in response) {
-        setBtnDisable(false);
-        setSnackbarOpen(true);
-        setSnackbarMessage(response.error);
-        setSnackbarSeverity("error");
-      }
-    } catch (error: any) {
-      setBtnDisable(false);
+  useEffect(() => {
+    if (success) {
+      setSnackbarSeverity('success');
+      setSnackbarMessage('Login successful');
       setSnackbarOpen(true);
-      setSnackbarMessage(error.message);
-      setSnackbarSeverity("error");
+      setBtnDisable(false);
+      if (token) {
+        navigate('/Home');
+      }
+    } else if (error) {
+      setSnackbarSeverity('error');
+      setSnackbarMessage(error);
+      setSnackbarOpen(true);
+      setBtnDisable(false);
     }
+  }, [success, error, token, navigate]);
+
+  const handleSubmit = async (values: SigninFormValues) => {
+    setBtnDisable(true);
+    await dispatch(login(values));
   };
 
   return (
     <div className="p-3 bg-gradient-to-r from-amber-50 to-violet-100 flex items-center justify-center h-screen">
       <div className="max-w-sm w-full">
         <h2 className="text-xl font-bold mb-4 text-center">Sign In</h2>
-        {/* Formik handles form state and submission */}
         <Formik initialValues={initialValues} validationSchema={SigninSchema} onSubmit={handleSubmit}>
-          {/* Form component represents the form */}
           <Form>
             <div className="mb-4">
               <label htmlFor="email" className="block mb-1">Email</label>
@@ -77,8 +69,7 @@ const SigninForm: React.FC = () => {
             <div className="mb-4">
               <Link to="/ForgotPassword" className="text-blue-500">Forgot your password?</Link>
             </div>
-            <button type="submit" disabled={btnDisable} className={`${btnDisable ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-              } text-white px-4 py-2 rounded w-full`}>
+            <button type="submit" disabled={btnDisable} className={`${btnDisable ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'} text-white px-4 py-2 rounded w-full`}>
               Sign In
             </button>
             <div className="mt-4 text-center">

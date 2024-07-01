@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { SignupSchema } from '../schema/SignupSchema';
 import { initialValues, SignupFormValues } from '../utility/SignupUtility';
-import { signupUser } from '../api/userAuth';
 import { PasswordField } from './PasswordField';
 import CustomSnackbar from './SnackbarComponent';
+import { signup } from '../app/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
 
 const SignupForm: React.FC = () => {
+    // Defining the useNavigate hook for the navigation.
+    const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+    const { error, success, token } = useAppSelector((state) => state.auth);
+
     // State for Snackbar
     const [snackbarOpen, setSnackbarOpen] = useState<true | false>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>('');
@@ -22,39 +28,31 @@ const SignupForm: React.FC = () => {
         setSnackbarOpen(false);
     };
 
-    // Defining the useNavigate hook for the navigation.
-    const navigate = useNavigate();
+    useEffect(() => {
+        if (success) {
+            setSnackbarSeverity('success');
+            setSnackbarMessage('Signup successful');
+            setSnackbarOpen(true);
+            setBtnDisable(false);
+            if (token) {
+                navigate('/Home');
+            }
+        } else if (error) {
+            setSnackbarSeverity('error');
+            setSnackbarMessage(error);
+            setSnackbarOpen(true);
+            setBtnDisable(false);
+        }
+    }, [success, error, token, navigate]);
 
     // Form submission handler
     const handleSubmit = async (values: SignupFormValues) => {
-        try {
-            setBtnDisable(true);
-            const response = await signupUser(values);
-            if (response.success && response.authToken) {
-                setSnackbarOpen(true);
-                setSnackbarMessage(response.message);
-                setSnackbarSeverity("success");
-                localStorage.setItem("data", JSON.stringify(response.authToken));
-                setTimeout(() => {
-                    setBtnDisable(false);
-                    navigate('/Home');
-                }, 600);
-            } else if ('error' in response) {
-                setBtnDisable(false);
-                setSnackbarOpen(true);
-                setSnackbarMessage(response.error);
-                setSnackbarSeverity("error");
-            }
-        } catch (error: any) {
-            setBtnDisable(false);
-            setSnackbarOpen(true);
-            setSnackbarMessage(error.message);
-            setSnackbarSeverity("error");
-        }
+        setBtnDisable(true);
+        await dispatch(signup(values));
     };
 
     return (
-        <div className="mt-5 bg-gradient-to-r from-amber-50 to-violet-100 flex items-center justify-center h-screen">
+        <div className="p-3 mt-5 bg-gradient-to-r from-amber-50 to-violet-100 flex items-center justify-center h-screen">
             <div className="max-w-sm w-full">
                 <h2 className="text-xl font-bold mb-4 text-center">Sign Up</h2>
                 {/* Formik handles form state and submission */}

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import { model, Schema, Document } from 'mongoose';
 
 // Define the type for the user document
 export type UserSchema = {
@@ -28,4 +28,4 @@ const userSchema = new Schema<UserSchema & Document>({
 // Define the user document type
 export type UserDocument = UserSchema & Document;
 
-export default mongoose.model<UserDocument>('User', userSchema);
+export default model<UserDocument>('User', userSchema);

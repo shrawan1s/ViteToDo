@@ -1,42 +1,56 @@
 // Input types of data.
-export interface UserDataSignup {
+export type UserDataSignup = {
     firstName: string;
     lastName: string;
     email: string;
     password: string;
 }
 
-export interface UserDataSignin {
+export type UserDataSignin = {
     email: string;
     password: string;
 }
 
-export interface ForgotPassword {
+export type ForgotPassword = {
     email: string;
 }
 
+export type GetUser = {
+    token: string;
+}
+
 // Output types of data and error.
-interface ApiResponseSuccess {
+type ApiResponseSuccess = {
     success: true;
     authToken?: string;
     message: string;
 }
 
-export interface ApiResponseError {
+export type ApiResponseError = {
     success: false;
     error: string;
 }
 
 export type ApiResponse = ApiResponseSuccess | ApiResponseError;
 
-interface ApiResponsePasswordSuccess {
+type ApiResponsePasswordSuccess = {
     success: true;
     message: string;
 }
 
-export interface ApiResponsePasswordError {
+export type ApiResponsePasswordError = {
     success: false;
     error: string;
 }
+
+export type UserDocument = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    resetToken?: string;
+    resetTokenExpiresAt?: Date;
+}
+
+export type GetUserResponse = UserDocument | ApiResponseError;
 
 export type ApiPasswordResponse = ApiResponsePasswordSuccess | ApiResponsePasswordError;
