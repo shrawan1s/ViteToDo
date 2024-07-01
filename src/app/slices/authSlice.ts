@@ -130,6 +130,7 @@ const authSlice = createSlice({
             state.error = action.payload as string;
             state.success = false;
         });
+
         builder.addCase(signup.pending, (state) => {
             resetState(state)
         });
@@ -144,6 +145,7 @@ const authSlice = createSlice({
             state.error = action.payload as string;
             state.success = false;
         });
+        
         builder.addCase(forgotpassword.pending, (state) => {
             resetState(state)
         });
@@ -156,6 +158,7 @@ const authSlice = createSlice({
             state.error = action.payload as string;
             state.success = false;
         });
+        
         builder.addCase(resetpassword.pending, (state) => {
             resetState(state)
         });
