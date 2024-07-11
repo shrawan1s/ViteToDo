@@ -6,6 +6,7 @@ import { initialValues, SigninFormValues } from '../utility/SigninUtility';
 import CustomSnackbar from './SnackbarComponent';
 import { login } from '../app/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
+import { isAuthenticated } from '../utility/AuthUtility';
 
 const SigninForm: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const SigninForm: React.FC = () => {
     }
     setSnackbarOpen(false);
   };
+console.log(isAuthenticated());
 
   useEffect(() => {
     if (success) {

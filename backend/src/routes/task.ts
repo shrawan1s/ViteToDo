@@ -5,7 +5,7 @@ import { Note } from '../model/noteSchema';
 const router = express.Router();
 
 // ROUTE 1: Get All the Notes using GET "/api/notes/fetchallnotes". Login required.
-router.get('/fetchallnotes', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/fetchalltasks', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const notes = await Note.find({ user: req.user!.id });
         res.json(notes);
@@ -16,7 +16,7 @@ router.get('/fetchallnotes', fetchUser, async (req: AuthenticatedRequest, res: R
 });
 
 // ROUTE 2: Add a New Note using POST "/api/notes/addnote". Login required.
-router.post('/addnote', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/addtask', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { task } = req.body;
         const note = new Note({
@@ -33,7 +33,7 @@ router.post('/addnote', fetchUser, async (req: AuthenticatedRequest, res: Respon
 });
 
 // ROUTE 3: Update an existing Note using PUT "/api/notes/updatenote/:id". Login required.
-router.put('/updatenote/:id', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
+router.put('/updatetask/:id', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     const { task } = req.body;
     const newNote: Partial<{ task: string }> = {};
 
@@ -57,7 +57,7 @@ router.put('/updatenote/:id', fetchUser, async (req: AuthenticatedRequest, res: 
 });
 
 // ROUTE 4: Delete an existing Note using DELETE "/api/notes/deletenote/:id". Login required.
-router.delete('/deletenote/:id', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
+router.delete('/deletetask/:id', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     try {
         let note = await Note.findById(req.params.id);
         if (!note) {
@@ -76,7 +76,7 @@ router.delete('/deletenote/:id', fetchUser, async (req: AuthenticatedRequest, re
 });
 
 // ROUTE 4: Delete all existing Notes using DELETE "/api/notes/deleteallnote". Login required.
-router.delete('/deleteallnote', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
+router.delete('/deletealltasks', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     try {
         // Directly use the authenticated user's ID to delete notes
         const deletedNotes = await Note.deleteMany({ user: req.user!.id });
