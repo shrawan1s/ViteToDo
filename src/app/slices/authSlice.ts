@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { signinUser, signupUser, forgotPassword, resetPassword } from '../../api/userAuth';
+import { signinUser, signupUser, forgotPassword, resetPassword, getUser } from '../../api/userAuth';
 import { SigninFormValues } from '../../utility/SigninUtility';
 import { SignupFormValues } from '../../utility/SignupUtility';
 import { ForgotPasswordFormValues } from '../../utility/ForgotPasswordUtility';
-import { ApiPasswordResponse } from '../../utility/UserAuth';
+import { ApiPasswordResponse, GetUserResponse } from '../../utility/UserAuth';
 import { initialState, ResetPasswordParams, resetState } from '../../utility/AuthSlice';
 
 // Define the async thunk for signing in
@@ -102,11 +102,33 @@ export const resetpassword = createAsyncThunk<ApiPasswordResponse, ResetPassword
     }
 );
 
+// Define the async thunk for fetch user information
+export const fetchUserData = createAsyncThunk<GetUserResponse, string>(
+    'auth/fetchUserData',
+    async (token: string, { rejectWithValue }) => {
+        try {
+            const response = await getUser({ token });
+            if (!response.error) {
+                return response; // Return the success response
+            } else {
+                return rejectWithValue(response.error); // Return the error message
+            }
+        } catch (error: any) {
+            if (!error.response) {
+                return rejectWithValue('Network error: Please check your connection.');
+            } else {
+                return rejectWithValue(error.message || 'Failed to fetch user data');
+            }
+        }
+    }
+);
+
 const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
         logout(state) {
+            state.user = null;
             state.token = null;
             state.isLoggedIn = false;
             state.message = null;
@@ -114,7 +136,7 @@ const authSlice = createSlice({
             state.success = false;
             localStorage.removeItem('authToken');
         },
-    },  
+    },
     extraReducers: (builder) => {
         builder.addCase(login.pending, (state) => {
             resetState(state)
@@ -124,7 +146,7 @@ const authSlice = createSlice({
             state.token = action.payload.authToken;
             state.success = true;
             state.isLoggedIn = true;
-            localStorage.setItem('authToken', action.payload.authToken); // Store authToken in localStorage
+            localStorage.setItem('authToken', action.payload.authToken);
         });
         builder.addCase(login.rejected, (state, action) => {
             state.error = action.payload as string;
@@ -139,13 +161,13 @@ const authSlice = createSlice({
             state.token = action.payload.authToken;
             state.success = true;
             state.isLoggedIn = true;
-            localStorage.setItem('authToken', action.payload.authToken); // Store authToken in localStorage
+            localStorage.setItem('authToken', action.payload.authToken);
         });
         builder.addCase(signup.rejected, (state, action) => {
             state.error = action.payload as string;
             state.success = false;
         });
-        
+
         builder.addCase(forgotpassword.pending, (state) => {
             resetState(state)
         });
@@ -158,7 +180,7 @@ const authSlice = createSlice({
             state.error = action.payload as string;
             state.success = false;
         });
-        
+
         builder.addCase(resetpassword.pending, (state) => {
             resetState(state)
         });
