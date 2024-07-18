@@ -3,8 +3,6 @@ import { ApiPasswordResponse, ApiResponse, ApiResponseError, ApiResponsePassword
 
 const BASE_AUTH_URL = "http://localhost:3000/api/auth";
 
-// console.log(BASE_AUTH_URL);
-
 // Create an instance of Axios with a base URL configured
 const axiosInstance = axios.create({
     baseURL: BASE_AUTH_URL,
@@ -30,7 +28,6 @@ export const signinUser = async (userData: UserDataSignin): Promise<ApiResponse>
 
 export const getUser = async (token: GetUser): Promise<GetUserResponse> => {
     try {
-        console.log(token);
         const response = await axiosInstance.post<GetUserResponse>('/getuser', token);
         return response.data;
     } catch (error: any) {
