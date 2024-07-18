@@ -15,6 +15,7 @@ const Navbar: React.FC = () => {
 
     const onLogout = async () => {
         dispatch(logout());
+        navigate('/');
     }
 
     const fetchUserData = async (token: string) => {
