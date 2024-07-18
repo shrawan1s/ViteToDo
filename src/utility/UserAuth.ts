@@ -33,6 +33,14 @@ export type ApiResponseError = {
 
 export type ApiResponse = ApiResponseSuccess | ApiResponseError;
 
+export type UserDocument = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    resetToken?: string;
+    resetTokenExpiresAt?: Date;
+}
+
 type ApiResponsePasswordSuccess = {
     success: true;
     message: string;
@@ -43,14 +51,13 @@ export type ApiResponsePasswordError = {
     error: string;
 }
 
-export type UserDocument = {
-    firstName: string;
-    lastName: string;
-    email: string;
-    resetToken?: string;
-    resetTokenExpiresAt?: Date;
-}
-
-export type GetUserResponse = UserDocument | ApiResponseError;
+export type GetUserResponse = {
+    user?: {
+        firstName: string;
+        lastName: string;
+        email: string;
+    };
+    error?: string;
+};
 
 export type ApiPasswordResponse = ApiResponsePasswordSuccess | ApiResponsePasswordError;
