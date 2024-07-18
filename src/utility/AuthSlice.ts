@@ -1,4 +1,7 @@
+import { UserDocument } from "./UserAuth";
+
 export type AuthState = {
+    user: UserDocument | null;
     message: string | null;
     isLoggedIn: boolean;
     token: string | null;
@@ -12,6 +15,7 @@ export type ResetPasswordParams = {
 };
 
 export const initialState: AuthState = {
+    user: null,
     message: null,
     isLoggedIn: false,
     token: null,

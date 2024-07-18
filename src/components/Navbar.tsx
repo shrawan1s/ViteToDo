@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
-import { useAppDispatch } from '../app/hooks/hook';
-import { logout } from '../app/slices/authSlice';
-import { getUser } from '../api/userAuth';
-import { GetUserResponse } from '../utility/UserAuth';
-import { isToken } from '../utility/AuthUtility';
 import { useNavigate } from 'react-router-dom';
+import { logout, fetchUserData } from '../app/slices/authSlice';
+import { isToken } from '../utility/AuthUtility';
+import { useAppDispatch } from '../app/hooks/hook';
+import { GetUserResponse } from '../utility/UserAuth';
 
 const Navbar: React.FC = () => {
     const navigate = useNavigate();
@@ -16,21 +15,23 @@ const Navbar: React.FC = () => {
     const onLogout = async () => {
         dispatch(logout());
         navigate('/');
-    }
+    };
 
-    const fetchUserData = async (token: string) => {
-        if (token) {
-            const data = await getUser({ token });
-            setUserData(data);
+    const fetchUser = async (token: string) => {
+        try {
+            const data = await dispatch(fetchUserData(token)).unwrap();
+            setUserData(data as GetUserResponse);
+        } catch (error) {
+            console.error('Failed to fetch user data:', error);
         }
-    }
+    };
 
     useEffect(() => {
         const token = isToken();
         if (token) {
-            fetchUserData(token);
+            fetchUser(token);
         }
-    }, [navigate]);
+    }, []);
 
     return (
         <nav className="bg-gray-800 py-4 px-8 flex justify-between items-center fixed top-0 w-full z-10">
