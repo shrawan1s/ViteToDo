@@ -3,7 +3,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ForgotPasswordSchema } from '../schema/ForgotPasswordSchema';
 import { initialValues, ForgotPasswordFormValues } from '../utility/ForgotPasswordUtility';
 import CustomSnackbar from './SnackbarComponent';
-import { forgotpassword } from '../app/slices/authSlice';
+import { clearState, forgotpassword } from '../app/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
 
 const ForgotPassword: React.FC = () => {
@@ -30,6 +30,7 @@ const ForgotPassword: React.FC = () => {
       setSnackbarMessage('Email sent successful');
       setSnackbarOpen(true);
       setBtnDisable(false);
+      dispatch(clearState())
     } else if (error) {
       setSnackbarSeverity('error');
       setSnackbarMessage(error);

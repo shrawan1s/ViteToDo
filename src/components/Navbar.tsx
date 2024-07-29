@@ -48,9 +48,9 @@ const Navbar: React.FC = () => {
                         </div>
                         <FontAwesomeIcon icon={faUser} className="text-xl mr-2 mx-3" />
                         <FontAwesomeIcon
+                            className="text-xl mr-2 mx-3 cursor-pointer"
                             icon={faSignOutAlt}
                             onClick={onLogout}
-                            className="text-xl mr-2 mx-3 cursor-pointer"
                         />
                     </>
                 ) : null}

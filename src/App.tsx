@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
 import SigninForm from './components/SigninForm';
 import SignupForm from './components/SignupForm';
 import Navbar from './components/Navbar';
@@ -7,19 +7,8 @@ import Home from './components/Home';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
-import { isAuthenticated } from './utility/AuthUtility';
 
 const App: React.FC = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (isAuthenticated()) {
-      navigate('/Home');
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
-
   return (
     <>
       <Navbar />
