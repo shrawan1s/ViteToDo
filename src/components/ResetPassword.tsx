@@ -4,7 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ResetPasswordSchema } from '../schema/ResetPasswordSchema';
 import { initialValues, ResetPasswordFormValues } from '../utility/ResetPasswordUtility';
 import CustomSnackbar from './SnackbarComponent';
-import { resetpassword } from '../app/slices/authSlice';
+import { clearState, resetpassword } from '../app/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
 
 const ResetPassword: React.FC = () => {
@@ -30,6 +30,7 @@ const ResetPassword: React.FC = () => {
             setSnackbarMessage('Password reset successful');
             setSnackbarOpen(true);
             setBtnDisable(false);
+            dispatch(clearState())
         } else if (error) {
             setSnackbarSeverity('error');
             setSnackbarMessage(error);

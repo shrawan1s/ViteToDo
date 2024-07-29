@@ -4,7 +4,7 @@ import { SigninFormValues } from '../../utility/SigninUtility';
 import { SignupFormValues } from '../../utility/SignupUtility';
 import { ForgotPasswordFormValues } from '../../utility/ForgotPasswordUtility';
 import { ApiPasswordResponse, GetUserResponse } from '../../utility/UserAuth';
-import { initialState, ResetPasswordParams, resetState } from '../../utility/AuthSlice';
+import { AuthState, initialState, ResetPasswordParams, resetState } from '../../utility/AuthSlice';
 
 // Define the async thunk for signing in
 export const login = createAsyncThunk(
@@ -128,13 +128,15 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         logout(state) {
-            state.user = null;
             state.token = null;
             state.isLoggedIn = false;
             state.message = null;
             state.error = null;
             state.success = false;
             localStorage.removeItem('authToken');
+        },
+        clearState(state: AuthState) {
+            resetState(state);
         },
     },
     extraReducers: (builder) => {
@@ -173,7 +175,7 @@ const authSlice = createSlice({
         });
         builder.addCase(forgotpassword.fulfilled, (state, action: PayloadAction<any>) => {
             state.message = action.payload.message;
-            state.token = action.payload.resetToken;
+            // state.token = action.payload.resetToken;
             state.success = true;
         });
         builder.addCase(forgotpassword.rejected, (state, action) => {
@@ -186,7 +188,7 @@ const authSlice = createSlice({
         });
         builder.addCase(resetpassword.fulfilled, (state, action: PayloadAction<any>) => {
             state.message = action.payload.message;
-            state.token = action.payload.resetToken;
+            // state.token = action.payload.resetToken;
             state.success = true;
         });
         builder.addCase(resetpassword.rejected, (state, action) => {
@@ -196,6 +198,6 @@ const authSlice = createSlice({
     },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, clearState } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -6,7 +6,6 @@ import { initialValues, SigninFormValues } from '../utility/SigninUtility';
 import CustomSnackbar from './SnackbarComponent';
 import { login } from '../app/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
-import { isAuthenticated } from '../utility/AuthUtility';
 
 const SigninForm: React.FC = () => {
   const navigate = useNavigate();
@@ -24,9 +23,9 @@ const SigninForm: React.FC = () => {
     }
     setSnackbarOpen(false);
   };
-console.log(isAuthenticated());
 
   useEffect(() => {
+    // dispatch(clearState())
     if (success) {
       setSnackbarSeverity('success');
       setSnackbarMessage('Login successful');
@@ -76,7 +75,7 @@ console.log(isAuthenticated());
             </button>
             <div className="mt-4 text-center">
               <span className="text-gray-600">Don't have an account?</span> {' '}
-              <Link to="/signup" className="text-blue-500">Sign up</Link>
+              <Link to="/Signup" className="text-blue-500">Sign up</Link>
             </div>
           </Form>
         </Formik>
