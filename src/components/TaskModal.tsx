@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 import { Task } from '../utility/Types';
+import { Tasks } from '../schema/Task';
 
 type TaskModalProps = {
     task: Task | null;
@@ -23,13 +23,9 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, closeModal, handleAddTask, 
         title: task ? task.title : ''
     };
 
-    const validationSchema = Yup.object({
-        title: Yup.string().required('Title is required'),
-        description: Yup.string().required('Description is required'),
-    });
-
     const onSubmit = (values: any) => {
         if (task) {
+            console.log("Submiting task");
             handleUpdateTask({ ...task, ...values });
         } else {
             handleAddTask(values);
@@ -42,7 +38,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, closeModal, handleAddTask, 
             <div className="fixed inset-0 bg-gray-600 bg-opacity-75 z-40"></div>
             <div className="bg-white rounded-lg shadow-2xl max-w-lg w-full mx-auto p-6 z-50 relative">
                 <h2 className="text-2xl font-semibold mb-6 text-gray-800">{task ? "Update Task" : "Add Task"}</h2>
-                <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+                <Formik initialValues={initialValues} validationSchema={Tasks} onSubmit={onSubmit}>
                     <Form className="space-y-6">
                         <div>
                             <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">Title</label>

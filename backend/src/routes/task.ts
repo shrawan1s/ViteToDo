@@ -25,7 +25,7 @@ router.post('/addtask', fetchUser, async (req: AuthenticatedRequest, res: Respon
             user: req.user!.id
         });
         const savedNote = await note.save();
-        res.json(savedNote);
+        res.json({ message: "Note has been added successfully", savedNote });
     } catch (error: any) {
         console.error(error.message);
         res.status(500).send("Internal Server Error");
@@ -49,7 +49,7 @@ router.put('/updatetask/:id', fetchUser, async (req: AuthenticatedRequest, res: 
         }
 
         note = await Note.findByIdAndUpdate(req.params.id, { $set: newNote }, { new: true });
-        res.json(note);
+        res.json({ message: "Note has been updated successfully", note });
     } catch (error: any) {
         console.error(error.message);
         res.status(500).send("Internal Server Error");
@@ -68,7 +68,7 @@ router.delete('/deletetask/:id', fetchUser, async (req: AuthenticatedRequest, re
         }
 
         note = await Note.findByIdAndDelete(req.params.id);
-        res.json({ "Success": "Note has been deleted", note });
+        res.json({ message: "Note has been deleted", note });
     } catch (error: any) {
         console.error(error.message);
         res.status(500).send("Internal Server Error");
@@ -80,7 +80,7 @@ router.delete('/deletealltasks', fetchUser, async (req: AuthenticatedRequest, re
     try {
         // Directly use the authenticated user's ID to delete notes
         const deletedNotes = await Note.deleteMany({ user: req.user!.id });
-        res.json({ "Success": "All notes have been deleted", deletedNotes });
+        res.json({ message: "All notes have been deleted", deletedNotes });
     } catch (error: any) {
         console.error(error.message);
         res.status(500).send("Internal Server Error");
