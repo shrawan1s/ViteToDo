@@ -4,7 +4,7 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { SigninSchema } from '../schema/SigninSchema';
 import { initialValues, SigninFormValues } from '../utility/SigninUtility';
 import CustomSnackbar from './SnackbarComponent';
-import { login } from '../app/slices/authSlice';
+import { login, clearState } from '../app/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
 
 const SigninForm: React.FC = () => {
@@ -25,7 +25,7 @@ const SigninForm: React.FC = () => {
   };
 
   useEffect(() => {
-    // dispatch(clearState())
+    dispatch(clearState());
     if (success) {
       setSnackbarSeverity('success');
       setSnackbarMessage('Login successful');
@@ -40,11 +40,11 @@ const SigninForm: React.FC = () => {
       setSnackbarOpen(true);
       setBtnDisable(false);
     }
-  }, [success, error, token, navigate]);
+  }, [success, error, token, navigate, dispatch]);
 
   const handleSubmit = async (values: SigninFormValues) => {
     setBtnDisable(true);
-    await dispatch(login(values));
+    await dispatch(login(values)).finally(() => setBtnDisable(false)); // Ensure button is re-enabled
   };
 
   return (

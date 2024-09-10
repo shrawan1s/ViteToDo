@@ -1,5 +1,5 @@
 import axios, { AxiosError } from 'axios';
-import { Task, TaskResponse, DeleteTaskResponse, DeleteAllTasksResponse, ErrorResponse } from '../utility/Task';
+import { Task, TaskResponse, DeleteTaskResponse, DeleteAllTasksResponse, ErrorResponse, FetchResponse, UpdateResponse } from '../utility/Task';
 
 // Define the base URL for tasks API
 const BASE_TASK_URL = import.meta.env.VITE_BASE_TASK_URL;
@@ -12,14 +12,26 @@ const axiosInstance = axios.create({
 // Fetch all tasks
 export const fetchAllTasks = async (token: string): Promise<Task[]> => {
     try {
-        const response = await axiosInstance.get<Task[]>('/fetchalltasks', {
+        const response = await axiosInstance.get<{ tasks: Task[] }>('/fetchalltasks', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return response.data.tasks;
+    } catch (error: any) {
+        throw handleAxiosError(error);
+    }
+};
+
+// Fetch a single task by ID
+export const fetchTask = async (id: string, token: string): Promise<FetchResponse> => {
+    try {
+        const response = await axiosInstance.get<FetchResponse>(`/fetchtask/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;
     } catch (error: any) {
         throw handleAxiosError(error);
     }
-}
+};
 
 // Add a new task
 export const addTask = async (taskData: { task: string }, token: string): Promise<TaskResponse> => {
@@ -31,19 +43,19 @@ export const addTask = async (taskData: { task: string }, token: string): Promis
     } catch (error: any) {
         throw handleAxiosError(error);
     }
-}
+};
 
 // Update an existing task
-export const updateTask = async (id: string, taskData: { task?: string }, token: string): Promise<TaskResponse> => {
+export const updateTask = async (id: string, taskData: { task?: string }, token: string): Promise<UpdateResponse> => {
     try {
-        const response = await axiosInstance.put<TaskResponse>(`/updatetask/${id}`, taskData, {
+        const response = await axiosInstance.put<UpdateResponse>(`/updatetask/${id}`, taskData, {
             headers: { Authorization: `Bearer ${token}` }
         });
         return response.data;
     } catch (error: any) {
         throw handleAxiosError(error);
     }
-}
+};
 
 // Delete a single task
 export const deleteTask = async (id: string, token: string): Promise<DeleteTaskResponse> => {
@@ -55,7 +67,7 @@ export const deleteTask = async (id: string, token: string): Promise<DeleteTaskR
     } catch (error: any) {
         throw handleAxiosError(error);
     }
-}
+};
 
 // Delete all tasks
 export const deleteAllTasks = async (token: string): Promise<DeleteAllTasksResponse> => {
@@ -67,11 +79,16 @@ export const deleteAllTasks = async (token: string): Promise<DeleteAllTasksRespo
     } catch (error: any) {
         throw handleAxiosError(error);
     }
-}
+};
 
 // Handle Axios errors
 const handleAxiosError = (error: AxiosError): ErrorResponse => {
-    if (error.request) {
+    if (error.response) {
+        // Extract error message from response if available
+        const errorMessage = (error.response.data as { error?: string }).error || 'Server error';
+        console.error('Error response from server:', errorMessage);
+        return { success: false, error: errorMessage };
+    } else if (error.request) {
         // No response received from the server
         console.error('No response received from the server:', error.message);
         return { success: false, error: 'Network error' };
@@ -80,6 +97,4 @@ const handleAxiosError = (error: AxiosError): ErrorResponse => {
         console.error('Error setting up the request:', error.message);
         return { success: false, error: 'Request error' };
     }
-}
-
-
+};

@@ -15,10 +15,6 @@ export type ForgotPassword = {
     email: string;
 }
 
-export type GetUser = {
-    token: string;
-}
-
 // Output types of data and error.
 type ApiResponseSuccess = {
     success: true;
@@ -29,6 +25,7 @@ type ApiResponseSuccess = {
 export type ApiResponseError = {
     success: false;
     error: string;
+    status?: number; // Optional: To handle HTTP status codes.
 }
 
 export type ApiResponse = ApiResponseSuccess | ApiResponseError;
@@ -49,6 +46,7 @@ type ApiResponsePasswordSuccess = {
 export type ApiResponsePasswordError = {
     success: false;
     error: string;
+    status?: number; // Optional: To handle HTTP status codes.
 }
 
 export type GetUserResponse = {

@@ -1,21 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useAppDispatch } from '../app/hooks/hook';
 import TaskModal from './TaskModal';
 import TaskList from './TaskList';
-import { Task } from '../utility/Types';
 import TaskViewModal from './TaskViewModal';
+import { Task } from '../utility/Task';
+import {deleteAllTasks,fetchAllTasks} from '../app/slices/taskSlice';
+import { isToken } from '../utility/AuthUtility';
 
 const Home: React.FC = () => {
   const [isTaskViewModalOpen, setIsTaskViewModalOpen] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [currentTask, setCurrentTask] = useState<Task | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: 1, title: "Task 1" },
-    { id: 2, title: "Task 2" },
-    { id: 3, title: "Task 3" },
-    { id: 4, title: "Task 4" },
-    { id: 5, title: "Task 5" },
-  ]);
+  const [token, setToken] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
 
+  // Function to get token and fetch tasks
+  const fetchTasks = useCallback(async () => {
+    const storedToken = isToken();
+    setToken(storedToken);
+
+    if (storedToken) {
+      await dispatch(fetchAllTasks(storedToken));
+    }
+  }, [dispatch]);
+
+  // useEffect to trigger the fetch on component mount
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
+  // Open and close modals
   const openModal = (task: Task | null = null) => {
     setCurrentTask(task);
     setIsModalOpen(true);
@@ -36,27 +50,11 @@ const Home: React.FC = () => {
     setCurrentTask(null);
   };
 
-  const handleAddTask = (task: Task) => {
-    setTasks([...tasks, task]);
-    closeModal();
-  };
-
-  const handleUpdateTask = (updatedTask: Task) => {
-    const updatedTasks = tasks.map(task =>
-      task.id === updatedTask.id ? { ...task, title: updatedTask.title } : task
-    );
-    setTasks(updatedTasks);
-    closeModal();
-  };
-
-  const handleDeleteTask = (taskId: number) => {
-    const updatedTasks = tasks.filter(task => task.id !== taskId);
-    setTasks(updatedTasks);
-  };
-
-  const handleRemoveAll = () => {
-    setTasks([]);
-    console.log("All tasks removed");
+  // Handle task actions
+  const handleRemoveAll = async () => {
+    if (token) {
+      await dispatch(deleteAllTasks(token));
+    }
   };
 
   return (
@@ -78,7 +76,11 @@ const Home: React.FC = () => {
         </div>
 
         <div className="overflow-y-auto max-h-96 no-scrollbar">
-          <TaskList tasks={tasks} openModal={openModal} handleDelete={handleDeleteTask} openViewModal={openTaskViewModal} />
+          <TaskList
+            token={token as string}
+            openModal={openModal}
+            openViewModal={openTaskViewModal}
+          />
         </div>
       </div>
 
@@ -86,8 +88,6 @@ const Home: React.FC = () => {
         <TaskModal
           task={currentTask}
           closeModal={closeModal}
-          handleAddTask={handleAddTask}
-          handleUpdateTask={handleUpdateTask}
         />
       )}
 
