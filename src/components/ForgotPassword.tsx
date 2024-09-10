@@ -25,6 +25,7 @@ const ForgotPassword: React.FC = () => {
   };
 
   useEffect(() => {
+    dispatch(clearState());
     if (success) {
       setSnackbarSeverity('success');
       setSnackbarMessage('Email sent successful');
@@ -37,12 +38,12 @@ const ForgotPassword: React.FC = () => {
       setSnackbarOpen(true);
       setBtnDisable(false);
     }
-  }, [success, error, token]);
+  }, [success, error, token, dispatch]);
 
   // Form submission handler
   const handleSubmit = async (values: ForgotPasswordFormValues) => {
     setBtnDisable(true);
-    await dispatch(forgotpassword(values));
+    await dispatch(forgotpassword(values)).finally(() => setBtnDisable(false));
   };
 
   return (

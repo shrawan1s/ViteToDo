@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
 
 const ResetPassword: React.FC = () => {
     const dispatch = useAppDispatch();
-    const { error, success, token } = useAppSelector((state) => state.auth);
+    const { error, success } = useAppSelector((state) => state.auth);
 
     const { resetToken } = useParams<{ resetToken: string }>();
     const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
@@ -25,24 +25,24 @@ const ResetPassword: React.FC = () => {
     };
 
     useEffect(() => {
+        dispatch(clearState()); // Reset state on component mount
+
         if (success) {
             setSnackbarSeverity('success');
             setSnackbarMessage('Password reset successful');
             setSnackbarOpen(true);
-            setBtnDisable(false);
-            dispatch(clearState())
         } else if (error) {
             setSnackbarSeverity('error');
             setSnackbarMessage(error);
             setSnackbarOpen(true);
-            setBtnDisable(false);
         }
-    }, [success, error, token]);
+        setBtnDisable(false); // Ensure button is re-enabled
+    }, [success, error, dispatch]);
 
     const handleSubmit = async (values: ResetPasswordFormValues) => {
         setBtnDisable(true);
         if (resetToken) {
-            await dispatch(resetpassword({ resetToken, newPassword: values.password }));
+            await dispatch(resetpassword({ resetToken, newPassword: values.password })).finally(() => setBtnDisable(false)); // Ensure button is re-enabled
         }
     };
 
@@ -59,8 +59,7 @@ const ResetPassword: React.FC = () => {
                                 <ErrorMessage name="password" component="div" className="text-red-500" />
                             </div>
                         </div>
-                        <button type="submit" disabled={btnDisable} className={`${btnDisable ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-                            } text-white px-4 py-2 rounded w-full mt-2`}>
+                        <button type="submit" disabled={btnDisable} className={`${btnDisable ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'} text-white px-4 py-2 rounded w-full mt-2`}>
                             Reset Password
                         </button>
                     </Form>

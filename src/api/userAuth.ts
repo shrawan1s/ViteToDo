@@ -1,13 +1,16 @@
-import axios, { AxiosError } from 'axios';
-import { ApiPasswordResponse, ApiResponse, ApiResponseError, ApiResponsePasswordError, ForgotPassword, GetUser, GetUserResponse, UserDataSignin, UserDataSignup } from '../utility/UserAuth'
+// Updated API Calls
 
-const BASE_AUTH_URL = "http://localhost:3000/api/auth";
+import axios, { AxiosError } from 'axios';
+import { ApiPasswordResponse, ApiResponse, ApiResponseError, ApiResponsePasswordError, ForgotPassword, GetUserResponse, UserDataSignin, UserDataSignup } from '../utility/UserAuth';
+
+const BASE_AUTH_URL = import.meta.env.VITE_BASE_AUTH_URL;
 
 // Create an instance of Axios with a base URL configured
 const axiosInstance = axios.create({
     baseURL: BASE_AUTH_URL,
 });
 
+// Signup User
 export const signupUser = async (userData: UserDataSignup): Promise<ApiResponse> => {
     try {
         const response = await axiosInstance.post<ApiResponse>('/createuser', userData);
@@ -15,8 +18,9 @@ export const signupUser = async (userData: UserDataSignup): Promise<ApiResponse>
     } catch (error: any) {
         return handleAxiosError(error);
     }
-}
+};
 
+// Signin User
 export const signinUser = async (userData: UserDataSignin): Promise<ApiResponse> => {
     try {
         const response = await axiosInstance.post<ApiResponse>('/login', userData);
@@ -24,17 +28,23 @@ export const signinUser = async (userData: UserDataSignin): Promise<ApiResponse>
     } catch (error: any) {
         return handleAxiosError(error);
     }
-}
+};
 
-export const getUser = async (token: GetUser): Promise<GetUserResponse> => {
+// Get User Details (with token in header)
+export const getUser = async (token: string): Promise<GetUserResponse> => {
     try {
-        const response = await axiosInstance.post<GetUserResponse>('/getuser', token);
+        const response = await axiosInstance.get<GetUserResponse>('/getuser', {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
         return response.data;
     } catch (error: any) {
         return handleAxiosError(error);
     }
-}
+};
 
+// Forgot Password
 export const forgotPassword = async (userData: ForgotPassword): Promise<ApiPasswordResponse> => {
     try {
         const response = await axiosInstance.post<ApiPasswordResponse>('/forgotpassword', userData);
@@ -42,8 +52,9 @@ export const forgotPassword = async (userData: ForgotPassword): Promise<ApiPassw
     } catch (error: any) {
         return handleAxiosForgotPasswordError(error);
     }
-}
+};
 
+// Reset Password
 export const resetPassword = async (resetToken: string, newPassword: string): Promise<ApiPasswordResponse> => {
     try {
         const response = await axiosInstance.post<ApiPasswordResponse>('/resetpassword', { resetToken, newPassword });
@@ -51,34 +62,29 @@ export const resetPassword = async (resetToken: string, newPassword: string): Pr
     } catch (error: any) {
         return handleAxiosForgotPasswordError(error);
     }
-}
+};
 
+// Error Handling
 const handleAxiosError = (error: AxiosError<ApiResponseError>): ApiResponseError => {
     if (error.response) {
-        // Server responded with an error
-        return { success: false, error: JSON.stringify(error.response.data.error) };
+        return { success: false, error: error.response.data.error };
     } else if (error.request) {
-        // No response received from the server
         console.error('No response received from the server:', error.message);
         return { success: false, error: 'Network error' };
     } else {
-        // Error setting up the request
         console.error('Error setting up the request:', error.message);
         return { success: false, error: 'Request error' };
     }
-}
+};
 
 const handleAxiosForgotPasswordError = (error: AxiosError<ApiResponsePasswordError>): ApiResponsePasswordError => {
     if (error.response) {
-        // Server responded with an error
-        return { success: false, error: JSON.stringify(error.response.data.error) };
+        return { success: false, error: error.response.data.error };
     } else if (error.request) {
-        // No response received from the server
         console.error('No response received from the server:', error.message);
         return { success: false, error: 'Network error' };
     } else {
-        // Error setting up the request
         console.error('Error setting up the request:', error.message);
         return { success: false, error: 'Request error' };
     }
-}
+};

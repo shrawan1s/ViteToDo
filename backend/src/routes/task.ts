@@ -1,89 +1,127 @@
 import express, { Response } from 'express';
 import { fetchUser, AuthenticatedRequest } from '../middleware/fetchUser';
-import { Note } from '../model/noteSchema';
+import { Task } from '../model/taskSchema';
 
 const router = express.Router();
 
-// ROUTE 1: Get All the Notes using GET "/api/notes/fetchallnotes". Login required.
+// ROUTE 1: Get All Tasks using GET "/api/app/fetchalltasks". Login required.
 router.get('/fetchalltasks', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const notes = await Note.find({ user: req.user!.id });
-        res.json(notes);
+        // Fetch all tasks for the authenticated user
+        const tasks = await Task.find({ user: req.user!.id });
+        res.status(200).json({ success: true, tasks });
     } catch (error: any) {
-        console.error(error.message);
-        res.status(500).send("Internal Server Error");
+        console.error("Error fetching tasks:", error.message);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
 
-// ROUTE 2: Add a New Note using POST "/api/notes/addnote". Login required.
+// ROUTE 2: Get a Task using GET "/api/app/fetchtask/:id". Login required.
+router.get('/fetchtask/:id', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const task = await Task.findById(req.params.id);
+
+        // Check if the task exists and belongs to the user
+        if (!task) return res.status(404).json({ success: false, message: "Task not found" });
+        if (task.user.toString() !== req.user!.id) return res.status(401).json({ success: false, message: "Not Authorized" });
+
+        res.status(200).json({ success: true, task });
+    } catch (error: any) {
+        console.error("Error fetching task:", error.message);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+});
+
+// ROUTE 3: Add a New Task using POST "/api/app/addtask". Login required.
 router.post('/addtask', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { task } = req.body;
-        const note = new Note({
+
+        // Ensure the task is provided
+        if (!task) return res.status(400).json({ success: false, message: "Task content is required" });
+
+        // Create and save a new task for the authenticated user
+        const newTask = new Task({
             task,
-            date: new Date(Date.now() + 3600000),
+            date: new Date(),
             user: req.user!.id
         });
-        const savedNote = await note.save();
-        res.json({ message: "Note has been added successfully", savedNote });
+
+        const savedTask = await newTask.save();
+        res.status(201).json({ success: true, message: "Task added successfully", savedTask });
     } catch (error: any) {
-        console.error(error.message);
-        res.status(500).send("Internal Server Error");
+        console.error("Error adding task:", error.message);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
 
-// ROUTE 3: Update an existing Note using PUT "/api/notes/updatenote/:id". Login required.
+// ROUTE 4: Update an existing Task using PUT "/api/app/updatetask/:id". Login required.
 router.put('/updatetask/:id', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     const { task } = req.body;
-    const newNote: Partial<{ task: string }> = {};
-
-    if (task) newNote.task = task;
 
     try {
-        let note = await Note.findById(req.params.id);
-        if (!note) {
-            return res.status(404).send("Not Found");
-        }
-        if (note.user.toString() !== req.user!.id) {
-            return res.status(401).send("Not Allowed");
+        // Find the task by ID
+        let existingTask = await Task.findById(req.params.id);
+
+        // Task not found
+        if (!existingTask) return res.status(404).json({ success: false, message: "Task not found" });
+
+        // Check if the task belongs to the authenticated user
+        if (existingTask.user.toString() !== req.user!.id) {
+            return res.status(401).json({ success: false, message: "Not Authorized" });
         }
 
-        note = await Note.findByIdAndUpdate(req.params.id, { $set: newNote }, { new: true });
-        res.json({ message: "Note has been updated successfully", note });
+        // Update the task content if provided
+        if (task) existingTask.task = task;
+
+        const updatedTask = await existingTask.save();
+        res.status(200).json({ success: true, message: "Task updated successfully", updatedTask });
     } catch (error: any) {
-        console.error(error.message);
-        res.status(500).send("Internal Server Error");
+        console.error("Error updating task:", error.message);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
 
-// ROUTE 4: Delete an existing Note using DELETE "/api/notes/deletenote/:id". Login required.
+// ROUTE 5: Delete a Task using DELETE "/api/app/deletetask/:id". Login required.
 router.delete('/deletetask/:id', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     try {
-        let note = await Note.findById(req.params.id);
-        if (!note) {
-            return res.status(404).send("Not Found");
-        }
-        if (note.user.toString() !== req.user!.id) {
-            return res.status(401).send("Not Allowed");
+        // Find the task by ID
+        const task = await Task.findById(req.params.id);
+
+        // Task not found
+        if (!task) {
+            return res.status(404).json({ success: false, message: "Task not found" });
         }
 
-        note = await Note.findByIdAndDelete(req.params.id);
-        res.json({ message: "Note has been deleted", note });
+        // Check if the task belongs to the authenticated user
+        if (task.user.toString() !== req.user!.id) {
+            return res.status(401).json({ success: false, message: "Not Authorized" });
+        }
+
+        // Delete the task
+        await Task.findByIdAndDelete(req.params.id);  // Use the model directly here
+        res.status(200).json({ success: true, message: "Task deleted successfully" });
     } catch (error: any) {
-        console.error(error.message);
-        res.status(500).send("Internal Server Error");
+        console.error("Error deleting task:", error.message);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
 
-// ROUTE 4: Delete all existing Notes using DELETE "/api/notes/deleteallnote". Login required.
+
+// ROUTE 6: Delete All Tasks using DELETE "/api/app/deletealltasks". Login required.
 router.delete('/deletealltasks', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     try {
-        // Directly use the authenticated user's ID to delete notes
-        const deletedNotes = await Note.deleteMany({ user: req.user!.id });
-        res.json({ message: "All notes have been deleted", deletedNotes });
+        // Delete all tasks for the authenticated user
+        const result = await Task.deleteMany({ user: req.user!.id });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ success: false, message: "No tasks found to delete" });
+        }
+
+        res.status(200).json({ success: true, message: "All tasks deleted successfully", deletedCount: result.deletedCount });
     } catch (error: any) {
-        console.error(error.message);
-        res.status(500).send("Internal Server Error");
+        console.error("Error deleting tasks:", error.message);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
 
