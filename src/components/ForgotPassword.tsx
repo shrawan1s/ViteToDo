@@ -1,44 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ForgotPasswordSchema } from '../schema/ForgotPasswordSchema';
 import { initialValues, ForgotPasswordFormValues } from '../utility/ForgotPasswordUtility';
-import CustomSnackbar from './SnackbarComponent';
-import { clearState, forgotpassword } from '../app/slices/authSlice';
-import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
+import { forgotpassword } from '../app/slices/authSlice';
+import { useAppDispatch } from '../app/hooks/hook';
 
 const ForgotPassword: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { error, success, token } = useAppSelector((state) => state.auth);
-
-  // State for Snackbar
-  const [snackbarOpen, setSnackbarOpen] = useState<true | false>(false);
-  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('error');
   const [btnDisable, setBtnDisable] = useState<true | false>(false)
-
-  // Snackbar close handler
-  const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackbarOpen(false);
-  };
-
-  useEffect(() => {
-    dispatch(clearState());
-    if (success) {
-      setSnackbarSeverity('success');
-      setSnackbarMessage('Email sent successful');
-      setSnackbarOpen(true);
-      setBtnDisable(false);
-      dispatch(clearState())
-    } else if (error) {
-      setSnackbarSeverity('error');
-      setSnackbarMessage(error);
-      setSnackbarOpen(true);
-      setBtnDisable(false);
-    }
-  }, [success, error, token, dispatch]);
 
   // Form submission handler
   const handleSubmit = async (values: ForgotPasswordFormValues) => {
@@ -68,7 +37,6 @@ const ForgotPassword: React.FC = () => {
           </Form>
         </Formik>
       </div>
-      <CustomSnackbar open={snackbarOpen} onClose={handleClose} message={snackbarMessage} severity={snackbarSeverity} />
     </div>
   );
 };

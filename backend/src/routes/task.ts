@@ -16,23 +16,7 @@ router.get('/fetchalltasks', fetchUser, async (req: AuthenticatedRequest, res: R
     }
 });
 
-// ROUTE 2: Get a Task using GET "/api/app/fetchtask/:id". Login required.
-router.get('/fetchtask/:id', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
-    try {
-        const task = await Task.findById(req.params.id);
-
-        // Check if the task exists and belongs to the user
-        if (!task) return res.status(404).json({ success: false, message: "Task not found" });
-        if (task.user.toString() !== req.user!.id) return res.status(401).json({ success: false, message: "Not Authorized" });
-
-        res.status(200).json({ success: true, task });
-    } catch (error: any) {
-        console.error("Error fetching task:", error.message);
-        res.status(500).json({ success: false, message: "Internal Server Error" });
-    }
-});
-
-// ROUTE 3: Add a New Task using POST "/api/app/addtask". Login required.
+// ROUTE 2: Add a New Task using POST "/api/app/addtask". Login required.
 router.post('/addtask', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { task } = req.body;
@@ -55,7 +39,7 @@ router.post('/addtask', fetchUser, async (req: AuthenticatedRequest, res: Respon
     }
 });
 
-// ROUTE 4: Update an existing Task using PUT "/api/app/updatetask/:id". Login required.
+// ROUTE 3: Update an existing Task using PUT "/api/app/updatetask/:id". Login required.
 router.put('/updatetask/:id', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     const { task } = req.body;
 
@@ -82,7 +66,7 @@ router.put('/updatetask/:id', fetchUser, async (req: AuthenticatedRequest, res: 
     }
 });
 
-// ROUTE 5: Delete a Task using DELETE "/api/app/deletetask/:id". Login required.
+// ROUTE 4: Delete a Task using DELETE "/api/app/deletetask/:id". Login required.
 router.delete('/deletetask/:id', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     try {
         // Find the task by ID
@@ -108,7 +92,7 @@ router.delete('/deletetask/:id', fetchUser, async (req: AuthenticatedRequest, re
 });
 
 
-// ROUTE 6: Delete All Tasks using DELETE "/api/app/deletealltasks". Login required.
+// ROUTE 5: Delete All Tasks using DELETE "/api/app/deletealltasks". Login required.
 router.delete('/deletealltasks', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
     try {
         // Delete all tasks for the authenticated user

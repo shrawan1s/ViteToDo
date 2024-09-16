@@ -8,11 +8,11 @@ import store from './app/store.ts';
 
 // Rendering the React application
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <Provider store={store}>
+  <Provider store={store}>
+    <React.StrictMode>
       <Router>
         <App />
       </Router>
-    </Provider>
-  </React.StrictMode>,
+    </React.StrictMode>,
+  </Provider>
 );

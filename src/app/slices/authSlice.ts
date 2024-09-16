@@ -3,8 +3,8 @@ import { signinUser, signupUser, forgotPassword, resetPassword, getUser } from '
 import { SigninFormValues } from '../../utility/SigninUtility';
 import { SignupFormValues } from '../../utility/SignupUtility';
 import { ForgotPasswordFormValues } from '../../utility/ForgotPasswordUtility';
-import { ApiPasswordResponse, GetUserResponse, initialState, ResetPasswordParams, resetState } from '../../utility/AuthSlice';
-import { ApiResponse } from '../../utility/UserAuth';
+import { ApiPasswordResponse, ApiPasswordResponseSuccess, ApiResponseSuccess, GetUserResponse, initialState, ResetPasswordParams, resetState } from '../../utility/AuthSlice';
+import { toast } from 'react-toastify';
 
 // Define the async thunk for signing in
 export const login = createAsyncThunk(
@@ -123,85 +123,76 @@ const authSlice = createSlice({
             state.success = false;
             state.user = null;
             localStorage.removeItem('authToken');
+            toast.success('Logged Out Successfully');
         },
         clearState(state) {
             resetState(state);
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(login.pending, (state) => {
-            resetState(state);
-        });
-        builder.addCase(login.fulfilled, (state, action: PayloadAction<ApiResponse>) => {
-            if (action.payload.success) {
-                state.message = action.payload.message;
-                state.token = action.payload.authToken ?? null; // Default to null if undefined
-                state.success = true;
-                state.isLoggedIn = true;
-                localStorage.setItem('authToken', state.token ?? ''); // Handle null case
-            }
+        builder.addCase(login.fulfilled, (state, action: PayloadAction<ApiResponseSuccess>) => {
+            state.message = action.payload.message;
+            state.token = action.payload.authToken;
+            state.user = action.payload.user;
+            state.success = true;
+            state.isLoggedIn = true;
+            localStorage.setItem('authToken', state.token);
+            toast.success(action.payload.message);
         });
         builder.addCase(login.rejected, (state, action) => {
             state.error = action.payload as string;
             state.success = false;
+            toast.error(action.payload as string);
         });
 
-        builder.addCase(signup.pending, (state) => {
-            resetState(state);
-        });
-        builder.addCase(signup.fulfilled, (state, action: PayloadAction<ApiResponse>) => {
-            if (action.payload.success) {
-                state.message = action.payload.message;
-                state.token = action.payload.authToken ?? null; // Default to null if undefined
-                state.success = true;
-                state.isLoggedIn = true;
-                localStorage.setItem('authToken', state.token ?? ''); // Handle null case
-            }
+        builder.addCase(signup.fulfilled, (state, action: PayloadAction<ApiResponseSuccess>) => {
+            state.message = action.payload.message;
+            state.token = action.payload.authToken;
+            state.user = action.payload.user;
+            state.success = true;
+            state.isLoggedIn = true;
+            localStorage.setItem('authToken', state.token);
+            toast.success(action.payload.message);
         });
         builder.addCase(signup.rejected, (state, action) => {
             state.error = action.payload as string;
             state.success = false;
+            toast.error(action.payload as string);
         });
 
-        builder.addCase(forgotpassword.pending, (state) => {
-            resetState(state);
-        });
-        builder.addCase(forgotpassword.fulfilled, (state, action: PayloadAction<ApiPasswordResponse>) => {
-            if (action.payload.success) {
-                state.message = action.payload.message;
-                state.success = true;
-            }
+        builder.addCase(forgotpassword.fulfilled, (state, action: PayloadAction<ApiPasswordResponseSuccess>) => {
+            state.message = action.payload.message;
+            state.success = true;
+            toast.success(action.payload.message);
         });
         builder.addCase(forgotpassword.rejected, (state, action) => {
             state.error = action.payload as string;
             state.success = false;
+            toast.error(action.payload as string);
         });
 
-        builder.addCase(resetpassword.pending, (state) => {
-            resetState(state);
-        });
         builder.addCase(resetpassword.fulfilled, (state, action: PayloadAction<ApiPasswordResponse>) => {
             if (action.payload.success) {
                 state.message = action.payload.message;
                 state.success = true;
+                toast.success(action.payload.message);
             }
         });
         builder.addCase(resetpassword.rejected, (state, action) => {
             state.error = action.payload as string;
             state.success = false;
+            toast.error(action.payload as string);
         });
 
-        builder.addCase(fetchUserData.pending, (state) => {
-            resetState(state);
-        });
         builder.addCase(fetchUserData.fulfilled, (state, action: PayloadAction<GetUserResponse>) => {
-            state.message = "User data fetched successfully";
-            state.user = action.payload.user || null;
-            state.success = true;
+            state.user = action.payload.user;
+            state.isLoggedIn = true;
+            state.token = action.payload.token as string;
         });
         builder.addCase(fetchUserData.rejected, (state, action) => {
             state.error = action.payload as string;
             state.success = false;
+            toast.error(action.payload as string);
         });
     },
 });

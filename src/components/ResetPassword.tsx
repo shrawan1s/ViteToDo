@@ -1,48 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { ResetPasswordSchema } from '../schema/ResetPasswordSchema';
 import { initialValues, ResetPasswordFormValues } from '../utility/ResetPasswordUtility';
-import CustomSnackbar from './SnackbarComponent';
-import { clearState, resetpassword } from '../app/slices/authSlice';
-import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
+import { resetpassword } from '../app/slices/authSlice';
+import { useAppDispatch } from '../app/hooks/hook';
 
 const ResetPassword: React.FC = () => {
     const dispatch = useAppDispatch();
-    const { error, success } = useAppSelector((state) => state.auth);
-
     const { resetToken } = useParams<{ resetToken: string }>();
-    const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
-    const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('error');
     const [btnDisable, setBtnDisable] = useState<boolean>(false);
-
-    const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-        setSnackbarOpen(false);
-    };
-
-    useEffect(() => {
-        dispatch(clearState()); // Reset state on component mount
-
-        if (success) {
-            setSnackbarSeverity('success');
-            setSnackbarMessage('Password reset successful');
-            setSnackbarOpen(true);
-        } else if (error) {
-            setSnackbarSeverity('error');
-            setSnackbarMessage(error);
-            setSnackbarOpen(true);
-        }
-        setBtnDisable(false); // Ensure button is re-enabled
-    }, [success, error, dispatch]);
 
     const handleSubmit = async (values: ResetPasswordFormValues) => {
         setBtnDisable(true);
         if (resetToken) {
-            await dispatch(resetpassword({ resetToken, newPassword: values.password })).finally(() => setBtnDisable(false)); // Ensure button is re-enabled
+            await dispatch(resetpassword({ resetToken, newPassword: values.password })).finally(() => setBtnDisable(false));
         }
     };
 
@@ -65,7 +37,6 @@ const ResetPassword: React.FC = () => {
                     </Form>
                 </Formik>
             </div>
-            <CustomSnackbar open={snackbarOpen} onClose={handleClose} message={snackbarMessage} severity={snackbarSeverity} />
         </div>
     );
 };

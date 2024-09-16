@@ -1,4 +1,4 @@
-import express, { Request, Response, Router } from 'express';
+import { Request, Response, Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User, { UserDocument } from '../model/userSchema';
@@ -11,7 +11,7 @@ import { validateForgotPassword, validateResetPassword } from '../middleware/pas
 dotenv.config();
 
 const JWT_SECRET: string = process.env.JWT_SECRET!;
-const router: Router = express.Router();
+const router: Router = Router();
 
 // Helper function to generate JWT
 const generateAuthToken = (userId: string) => {
@@ -34,10 +34,7 @@ router.post('/createuser', validateCreateUser, async (req: Request<{}, {}, { fir
         // Save the user
         await user.save();
 
-        // Generate JWT token
-        const authToken = generateAuthToken(user.id);
-
-        res.status(201).json({ success: true, authToken, message: "User created successfully" });
+        res.status(201).json({ success: true, authToken: generateAuthToken(user.id), message: "User created successfully", user: { firstName: user.firstName, lastName: user.lastName, email: user.email } });
     } catch (error: any) {
         console.error("Error creating user:", error);
         res.status(500).json({ success: false, error: "Internal Server Error" });
@@ -57,10 +54,7 @@ router.post('/login', validateLoginUser, async (req: Request<{}, {}, { email: st
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) return res.status(401).json({ success: false, error: "Invalid email or password" });
 
-        // Generate JWT token
-        const authToken = generateAuthToken(user.id);
-
-        res.status(200).json({ success: true, authToken, message: "Login successful" });
+        res.status(200).json({ success: true, authToken: generateAuthToken(user.id), message: "Login successful", user: { firstName: user.firstName, lastName: user.lastName, email: user.email } });
     } catch (error: any) {
         console.error("Error logging in:", error);
         res.status(500).json({ success: false, error: "Internal Server Error" });
@@ -73,11 +67,11 @@ router.get('/getuser', fetchUser, async (req: AuthenticatedRequest, res: Respons
         const userId = req.user!.id;
 
         // Fetch user without password
-        const user = await User.findById(userId).select("-password");
+        const user = await User.findById(userId);
 
         if (!user) return res.status(404).json({ success: false, error: "User not found" });
 
-        res.status(200).json({ success: true, user });
+        res.status(200).json({ success: true, token: generateAuthToken(user.id), user: { firstName: user.firstName, lastName: user.lastName, email: user.email } });
     } catch (error: any) {
         console.error("Error fetching user:", error);
         res.status(500).json({ success: false, error: "Internal Server Error" });

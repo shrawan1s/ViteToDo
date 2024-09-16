@@ -1,5 +1,3 @@
-// Updated API Calls
-
 import axios, { AxiosError } from 'axios';
 import { ApiPasswordResponse, ApiResponse, ApiResponseError, ApiResponsePasswordError, ForgotPassword, GetUserResponse, UserDataSignin, UserDataSignup } from '../utility/UserAuth';
 

@@ -4,46 +4,24 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { SignupSchema } from '../schema/SignupSchema';
 import { initialValues, SignupFormValues } from '../utility/SignupUtility';
 import { PasswordField } from './PasswordField';
-import CustomSnackbar from './SnackbarComponent';
-import { signup, clearState } from '../app/slices/authSlice';
+import { signup } from '../app/slices/authSlice';
 import { useAppDispatch, useAppSelector } from '../app/hooks/hook';
 
 const SignupForm: React.FC = () => {
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const { error, success, token } = useAppSelector((state) => state.auth);
-
-    const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
-    const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState<'error' | 'success' | 'info' | 'warning'>('error');
+    const { token } = useAppSelector((state) => state.auth);
     const [btnDisable, setBtnDisable] = useState<boolean>(false);
 
-    const handleClose = (_event: React.SyntheticEvent | Event, reason?: string) => {
-        if (reason === 'clickaway') {
-            return;
-        }
-        setSnackbarOpen(false);
-    };
-
     useEffect(() => {
-        dispatch(clearState()); // Reset state on component mount
-        if (success) {
-            setSnackbarSeverity('success');
-            setSnackbarMessage('Signup successful');
-            setSnackbarOpen(true);
-            if (token) {
-                navigate('/Home');
-            }
-        } else if (error) {
-            setSnackbarSeverity('error');
-            setSnackbarMessage(error);
-            setSnackbarOpen(true);
+        if (token) {
+            navigate('/Home');
         }
-    }, [success, error, token, navigate, dispatch]);
+    }, [token, navigate, dispatch]);
 
     const handleSubmit = async (values: SignupFormValues) => {
         setBtnDisable(true);
-        await dispatch(signup(values)).finally(() => setBtnDisable(false)); // Ensure button is re-enabled
+        await dispatch(signup(values)).finally(() => setBtnDisable(false));
     };
 
     return (
@@ -87,7 +65,6 @@ const SignupForm: React.FC = () => {
                     </Form>
                 </Formik>
             </div>
-            <CustomSnackbar open={snackbarOpen} onClose={handleClose} message={snackbarMessage} severity={snackbarSeverity} />
         </div>
     );
 };

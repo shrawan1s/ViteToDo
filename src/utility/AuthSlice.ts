@@ -1,4 +1,12 @@
 // Define the types for user authentication data and API responses
+export type User = {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    _v: number
+}
+
 export type UserDataSignup = {
     firstName: string;
     lastName: string;
@@ -24,17 +32,18 @@ export type ApiResponseSuccess = {
     success: true;
     authToken: string;
     message: string;
-};
+    user: User
+}
 
 export type ApiResponseError = {
     success: false;
     error: string;
-};
+}
 
 export type ApiResponse = ApiResponseSuccess | ApiResponseError;
 
 export type ApiPasswordResponseSuccess = {
-    success: true;
+    success: boolean;
     message: string;
 };
 
@@ -46,11 +55,9 @@ export type ApiPasswordResponseError = {
 export type ApiPasswordResponse = ApiPasswordResponseSuccess | ApiPasswordResponseError;
 
 export type GetUserResponse = {
-    user?: {
-        firstName: string;
-        lastName: string;
-        email: string;
-    };
+    success?: boolean;
+    token?: string;
+    user?: User
     error?: string;
 };
 
@@ -66,11 +73,7 @@ export type AuthState = {
     token: string | null;
     error: string | null;
     success: boolean;
-    user?: {
-        firstName: string;
-        lastName: string;
-        email: string;
-    } | null;
+    user?: User | null;
 };
 
 // Initial state

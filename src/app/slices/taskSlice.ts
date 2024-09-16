@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Task, TaskResponse, UpdateResponse, FetchResponse, DeleteTaskResponse, DeleteAllTasksResponse, ErrorResponse, TaskState } from '../../utility/Task';
-import { fetchAllTasks as fetchAllTasksApi, fetchTask as fetchTaskApi, addTask as addTaskApi, updateTask as updateTaskApi, deleteTask as deleteTaskApi, deleteAllTasks as deleteAllTasksApi } from '../../api/task';
+import { Task, TaskResponse, UpdateResponse, DeleteTaskResponse, DeleteAllTasksResponse, ErrorResponse, TaskState } from '../../utility/Task';
+import { fetchAllTasks as fetchAllTasksApi, addTask as addTaskApi, updateTask as updateTaskApi, deleteTask as deleteTaskApi, deleteAllTasks as deleteAllTasksApi } from '../../api/task';
+import { toast } from 'react-toastify';
 
 // Async thunks for API requests
 export const fetchAllTasks = createAsyncThunk<Task[], string, { rejectValue: ErrorResponse }>(
@@ -8,23 +9,6 @@ export const fetchAllTasks = createAsyncThunk<Task[], string, { rejectValue: Err
     async (token, { rejectWithValue }) => {
         try {
             return await fetchAllTasksApi(token);
-        } catch (error) {
-            return rejectWithValue(error as ErrorResponse);
-        }
-    }
-);
-
-export const fetchTask = createAsyncThunk<FetchResponse, { id: string, token: string }, { rejectValue: ErrorResponse }>(
-    'tasks/fetchTask',
-    async ({ id, token }, { rejectWithValue }) => {
-        try {
-            const response = await fetchTaskApi(id, token);
-
-            // Ensure the response is in the format of FetchResponse
-            return {
-                success: response.success,
-                task: response.task // Ensure this matches FetchResponse.task
-            };
         } catch (error) {
             return rejectWithValue(error as ErrorResponse);
         }
@@ -103,113 +87,76 @@ const taskSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(fetchAllTasks.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-                state.message = null;
-            })
             .addCase(fetchAllTasks.fulfilled, (state, action: PayloadAction<Task[]>) => {
                 state.loading = false;
                 state.tasks = action.payload;
             })
             .addCase(fetchAllTasks.rejected, (state, action: PayloadAction<ErrorResponse | undefined>) => {
                 state.loading = false;
-                state.error = action.payload?.error || 'Failed to fetch tasks';
+                state.error = action.payload?.error || null;
                 state.message = null;
+                toast.error(action.payload?.error);
             })
 
-            .addCase(fetchTask.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-                state.message = null;
-            })
-            .addCase(fetchTask.fulfilled, (state, action: PayloadAction<FetchResponse>) => {
-                state.loading = false;
-                state.currentTask = action.payload.task
-            })
-            .addCase(fetchTask.rejected, (state, action: PayloadAction<ErrorResponse | undefined>) => {
-                state.loading = false;
-                state.error = action.payload?.error || 'Failed to fetch task';
-                state.message = null;
-            })
-
-            .addCase(addTask.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-                state.message = null;
-            })
             .addCase(addTask.fulfilled, (state, action: PayloadAction<TaskResponse>) => {
                 state.loading = false;
                 if (action.payload.savedTask) {
                     state.tasks.push(action.payload.savedTask);
                 }
                 state.message = action.payload.message;
+                toast.success(action.payload.message);
             })
             .addCase(addTask.rejected, (state, action: PayloadAction<ErrorResponse | undefined>) => {
                 state.loading = false;
-                state.error = action.payload?.error || 'Failed to add task';
+                state.error = action.payload?.error || null;
                 state.message = null;
+                toast.error(action.payload?.error);
             })
 
-            .addCase(updateTask.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-                state.message = null;
-            })
             .addCase(updateTask.fulfilled, (state, action: PayloadAction<UpdateResponse>) => {
                 state.loading = false;
-
-                console.log('Action Payload:', action.payload.updatedTask);
-
                 const updatedTask = action.payload.updatedTask;
-
                 if (updatedTask) {
-                    console.log('Updated Task:', updatedTask);
                     state.tasks = state.tasks.map(task =>
                         task._id === updatedTask._id ? updatedTask : task
                     );
                 }
-
                 state.message = action.payload.message || null;
+                toast.success(action.payload.message);
             })
             .addCase(updateTask.rejected, (state, action: PayloadAction<ErrorResponse | undefined>) => {
                 state.loading = false;
                 state.error = action.payload?.error || 'Failed to update task';
                 state.message = null;
+                toast.error(action.payload?.error);
             })
 
-            .addCase(deleteTask.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-                state.message = null;
-            })
             .addCase(deleteTask.fulfilled, (state, action: PayloadAction<DeleteTaskResponse & { id: string }>) => {
                 state.loading = false;
                 if (action.payload) {
                     state.tasks = state.tasks.filter(task => task._id !== action.payload.id);
                 }
                 state.message = action.payload.message || null;
+                toast.success(action.payload.message);
             })
             .addCase(deleteTask.rejected, (state, action: PayloadAction<ErrorResponse | undefined>) => {
                 state.loading = false;
-                state.error = action.payload?.error || 'Failed to delete task';
+                state.error = action.payload?.error || null;
                 state.message = null;
+                toast.error(action.payload?.error);
             })
 
-            .addCase(deleteAllTasks.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-                state.message = null;
-            })
             .addCase(deleteAllTasks.fulfilled, (state, action: PayloadAction<DeleteAllTasksResponse>) => {
                 state.loading = false;
                 state.tasks = [];
-                state.message = action.payload.message || null; // Update message
+                state.message = action.payload.message || null;
+                toast.success(action.payload.message);
             })
             .addCase(deleteAllTasks.rejected, (state, action: PayloadAction<ErrorResponse | undefined>) => {
                 state.loading = false;
-                state.error = action.payload?.error || 'Failed to delete all tasks';
+                state.error = action.payload?.error || null;
                 state.message = null;
+                toast.error(action.payload?.error);
             });
     }
 });

@@ -21,18 +21,6 @@ export const fetchAllTasks = async (token: string): Promise<Task[]> => {
     }
 };
 
-// Fetch a single task by ID
-export const fetchTask = async (id: string, token: string): Promise<FetchResponse> => {
-    try {
-        const response = await axiosInstance.get<FetchResponse>(`/fetchtask/${id}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        return response.data;
-    } catch (error: any) {
-        throw handleAxiosError(error);
-    }
-};
-
 // Add a new task
 export const addTask = async (taskData: { task: string }, token: string): Promise<TaskResponse> => {
     try {
