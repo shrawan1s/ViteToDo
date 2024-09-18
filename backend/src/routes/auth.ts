@@ -2,8 +2,7 @@ import { Request, Response, Router } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User, { UserDocument } from '../model/userSchema';
-import { validateCreateUser, validateLoginUser } from '../middleware/userMiddleware';
-import { fetchUser, AuthenticatedRequest } from '../middleware/fetchUser';
+import { validateCreateUser, validateLoginUser, fetchUser, AuthenticatedRequest } from '../middleware/userMiddleware';
 import { sendPasswordResetEmail } from '../utils/email';
 import dotenv from 'dotenv';
 import { validateForgotPassword, validateResetPassword } from '../middleware/passwordMiddleware';
@@ -15,7 +14,7 @@ const router: Router = Router();
 
 // Helper function to generate JWT
 const generateAuthToken = (userId: string) => {
-    return jwt.sign({ user: { id: userId } }, JWT_SECRET, { expiresIn: '1h' });
+    return jwt.sign({ user: { id: userId } }, JWT_SECRET);
 };
 
 // Create user (Sign up)

@@ -58,7 +58,13 @@ export type ErrorResponse = {
 export type TaskState = {
     tasks: Task[];
     currentTask: Task | null;
-    loading: boolean;
     error: string | null;
     message: string | null;  // Add this line
+}
+
+export const initialState: TaskState = {
+    tasks: [],
+    currentTask: null,
+    error: null,
+    message: null
 }

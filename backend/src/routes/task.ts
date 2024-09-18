@@ -1,5 +1,5 @@
 import express, { Response } from 'express';
-import { fetchUser, AuthenticatedRequest } from '../middleware/fetchUser';
+import { fetchUser, AuthenticatedRequest } from '../middleware/userMiddleware';
 import { Task } from '../model/taskSchema';
 
 const router = express.Router();
@@ -41,9 +41,9 @@ router.post('/addtask', fetchUser, async (req: AuthenticatedRequest, res: Respon
 
 // ROUTE 3: Update an existing Task using PUT "/api/app/updatetask/:id". Login required.
 router.put('/updatetask/:id', fetchUser, async (req: AuthenticatedRequest, res: Response) => {
-    const { task } = req.body;
-
     try {
+        const { task } = req.body;
+        
         // Find the task by ID
         let existingTask = await Task.findById(req.params.id);
 

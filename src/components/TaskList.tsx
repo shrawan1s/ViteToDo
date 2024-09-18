@@ -13,7 +13,7 @@ type TaskListProps = {
 
 const TaskList: React.FC<TaskListProps> = ({ openModal, token, openViewModal }) => {
     const dispatch = useAppDispatch();
-    const { tasks, loading, error } = useAppSelector((state: RootState) => state.tasks);
+    const { tasks } = useAppSelector((state: RootState) => state.tasks);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
@@ -33,9 +33,6 @@ const TaskList: React.FC<TaskListProps> = ({ openModal, token, openViewModal }) 
         setSelectedTaskId(null);
         setShowModal(false);
     };
-
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Error: {error}</p>;
 
     return (
         <>

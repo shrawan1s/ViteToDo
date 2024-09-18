@@ -95,7 +95,7 @@ export const fetchUserData = createAsyncThunk<GetUserResponse, string>(
     'auth/fetchUserData',
     async (token: string, { rejectWithValue }) => {
         try {
-            const response = await getUser(token); // Adjust this to send just the token string
+            const response = await getUser(token);
             if (!response.error) {
                 return response;
             } else {
@@ -192,7 +192,6 @@ const authSlice = createSlice({
         builder.addCase(fetchUserData.rejected, (state, action) => {
             state.error = action.payload as string;
             state.success = false;
-            toast.error(action.payload as string);
         });
     },
 });

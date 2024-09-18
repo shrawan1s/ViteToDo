@@ -32,21 +32,21 @@ const SignupForm: React.FC = () => {
                     <Form>
                         <div className="mb-4">
                             <label htmlFor="firstName" className="block mb-1">First Name</label>
-                            <Field type="text" id="firstName" name="firstName" className="border p-2 w-full rounded-md outline-none" placeholder="Enter your first name" />
+                            <Field type="text" id="firstName" name="firstName" className="border p-2 w-full rounded-md outline-none" placeholder="Enter your first name" autoComplete="first_name" />
                             <div className="h-1">
                                 <ErrorMessage name="firstName" component="div" className="text-red-500" />
                             </div>
                         </div>
                         <div className="mb-4">
                             <label htmlFor="lastName" className="block mb-1">Last Name</label>
-                            <Field type="text" id="lastName" name="lastName" className="border p-2 w-full rounded-md outline-none" placeholder="Enter your last name" />
+                            <Field type="text" id="lastName" name="lastName" className="border p-2 w-full rounded-md outline-none" placeholder="Enter your last name" autoComplete="last_name" />
                             <div className="h-1">
                                 <ErrorMessage name="lastName" component="div" className="text-red-500" />
                             </div>
                         </div>
                         <div className="mb-4">
                             <label htmlFor="email" className="block mb-1">Email</label>
-                            <Field type="email" id="email" name="email" className="border p-2 w-full rounded-md outline-none" placeholder="Enter your email" />
+                            <Field type="email" id="email" name="email" className="border p-2 w-full rounded-md outline-none" placeholder="Enter your email" autoComplete="email" />
                             <div className="h-1">
                                 <ErrorMessage name="email" component="div" className="text-red-500" />
                             </div>

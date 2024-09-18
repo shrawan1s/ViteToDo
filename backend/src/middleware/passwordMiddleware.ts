@@ -9,7 +9,7 @@ const forgotPasswordSchema = yup.object().shape({
 // Define the validation schema using Yup
 const resetPasswordSchema = yup.object().shape({
     resetToken: yup.string().required('Email is required'),
-    newPassword: yup.string().required('Password is required').min(6, 'Password must be at least 6 characters')
+    newPassword: yup.string().required('Password is required').min(6, 'Password must be at least 6 characters').max(100, "Password must be at most 100 characters")
 });
 
 // Middleware to validate the request body against the schema

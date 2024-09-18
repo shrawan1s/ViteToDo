@@ -46,7 +46,7 @@ const Navbar: React.FC = () => {
                         <>
                             <div className='overflow-hidden whitespace-nowrap text-ellipsis flex-shrink-0 max-w-xs'>
                                 {userData && (
-                                    <span className='mx-1'>{userData.firstName} {userData.lastName}</span>
+                                    <span className='mx-1'>Hello {userData.firstName}</span>
                                 )}
                             </div>
                             <FontAwesomeIcon icon={faUser} className="text-xl mr-2 mx-3" />
